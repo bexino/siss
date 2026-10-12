@@ -228,7 +228,7 @@ const STATIC_I18N = {
   // 顺延自旧排班表
   '导入现有的排班表，作为重新编排的基础。': 'Import an existing roster as the basis for re-scheduling.',
   '仅支持本系统导出的 CSV 表格文件或 Markdown 文本，': 'Only CSV files or Markdown text exported by this system are supported.',
-  '敬请谅解。': '',
+  '敬请谅解。': 'Please understand.',
   '方式一：上传 CSV 文件': 'Method 1: Upload a CSV file',
   '选取文件': 'Choose file',
   '或': 'or',
