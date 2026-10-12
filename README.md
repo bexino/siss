@@ -6,7 +6,7 @@
 [![MadeWith♥](https://img.shields.io/badge/@bexino-用_♥_制作-purple)](https://github.com/bexino)
 [![ViewInGithub](https://img.shields.io/badge/Github-bexino%2Fsiss-white?logo=github&logoColor=auto&labelColor=555555&color=000000)](https://github.com/bexino/siss/)
 
-# 能工智人排版系统
+# 能工智人排班系统
 
 一个简单实用的静态排班工具：通过用户友好向导生成值班表，可确保每个人承担的班次数量完全相等。
 
