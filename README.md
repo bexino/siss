@@ -26,8 +26,6 @@
 
 ## 格式
 
-#### 导出
-
 | 格式     | 扩展名  | 说明                                                         | **是否可用于导入** |
 | -------- | ------- | ------------------------------------------------------------ | ------------------ |
 | 网页     | `.html` | 若需在线访问，需自行部署；                                   | N                  |
@@ -39,22 +37,14 @@
 
 ### 技术栈
 
-HTML Only + JavaScript Native.
-
-### 项目结构
-
-```
-├── index.html       # 页面结构与步骤面板
-├── css/style.css    # 自定义样式
-├── js/scheduler.js  # 纯排班逻辑（无 DOM 依赖）
-└── js/app.js        # 界面交互与状态管理
-```
+HTML + JavaScript + Vite.
 
 ### 本地部署
 
 > [!TIP]
-> 无需编译、无需构建、无需配置；  
-> 直接打开 `index.html` 即可。
+> ```bash
+> npm run dev
+> ```
 
 > [!NOTE]
 > - 核心算法位于 `js/scheduler.js`，可在 Node 中快速验证，例如：
@@ -94,8 +84,6 @@ A simple and practical static scheduling tool: it generates duty rosters through
 
 ## Formats
 
-#### Export
-
 | Format   | Extension | Description                                                  | **Can be used for import** |
 | -------- | --------- | ------------------------------------------------------------ | -------------------------- |
 | Webpage  | `.html`   | If online access is required, you must deploy it yourself;    | N                          |
@@ -107,22 +95,14 @@ A simple and practical static scheduling tool: it generates duty rosters through
 
 ### Tech Stack
 
-HTML Only + JavaScript Native.
-
-### Project Structure
-
-```
-├── index.html       # Page structure and step panels
-├── css/style.css    # Custom styles
-├── js/scheduler.js  # Pure scheduling logic (no DOM dependency)
-└── js/app.js        # UI interaction and state management
-```
+HTML + JavaScript + Vite.
 
 ### Local Deployment
 
 > [!TIP]
-> No compilation, no build, no configuration required;  
-> Simply open `index.html`.
+> ```bash
+> npm run dev
+> ```
 
 > [!NOTE]
 > - The core algorithm is located in `js/scheduler.js` and can be quickly verified in Node, for example:

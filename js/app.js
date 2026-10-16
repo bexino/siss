@@ -97,6 +97,7 @@ const I18N = {
     htmlExported: 'Standalone schedule HTML file exported',
     confirmRestart: 'Start over? All current settings will be reset.',
     confirmRestartEdit: 'Start over with the old roster? Imported content and settings will be reset.',
+    confirmTitle: 'Please Confirm',
     makeupBadge: 'Makeup', makeupShort: 'M',
     // 独立 HTML 导出
     standaloneTitle: 'Schedule', standaloneTitleFull: 'Schedule (${s} to ${e})',
@@ -154,7 +155,8 @@ function tf(key, vars) {
 const STATIC_I18N = {
   // 标题与主页
   '能工智人排班系统': 'SI Scheduling System',
-  '点击回到主页': 'Click to go home',
+  '上一步': 'Back',
+  '下一步': 'Next',
   '开始新的排班': 'Start New Schedule',
   '顺延自旧排班表': 'Continue From an Old Roster',
   // 步骤标题
@@ -170,7 +172,7 @@ const STATIC_I18N = {
   '步骤进度导览': 'Step navigation',
   // 步骤 1
   '人员名单列表': 'People List',
-  '载入示例 (22人)': 'Load Sample (22)',
+  '载入示例': 'Load Sample',
   '清空': 'Clear',
   '输入人员姓名，用逗号（全角或半角）或换行分隔，如：\n张三, 李四, 王五，赵六，钱七': 'Enter names, separated by commas or line breaks, e.g.:\nAlice, Bob, Carol, Dave, Eve',
   '请使用换行或逗号分隔，全半角不限。': 'Separate names with line breaks or commas (both fullwidth and halfwidth commas work).',
@@ -229,10 +231,9 @@ const STATIC_I18N = {
   '导入现有的排班表，作为重新编排的基础。': 'Import an existing roster as the basis for re-scheduling.',
   '仅支持本系统导出的 CSV 表格文件或 Markdown 文本，': 'Only CSV files or Markdown text exported by this system are supported.',
   '敬请谅解。': 'Please understand.',
-  '方式一：上传 CSV 文件': 'Method 1: Upload a CSV file',
-  '选取文件': 'Choose file',
+  '选取CSV表格': 'Choose CSV file',
   '或': 'or',
-  '方式二：粘贴 Markdown 文本': 'Method 2: Paste Markdown text',
+  '粘贴 Markdown 文本': 'Paste Markdown text',
   '## 2026-09-01，周二\n张三，李四，王五\n\n## 2026-09-02，周三\n赵六，钱七，孙八': '## 2026-09-01, Tue.\nAlice, Bob, Carol\n\n## 2026-09-02, Wed.\nDave, Eve, Frank',
   '已经执行完毕到了哪一天？选中的日期（含该天）以前的信息将被忽略。': 'How far has the old roster been executed? Dates up to and including the selected date will be ignored.',
   '截止日期（含该天）': 'Executed through (inclusive)',
@@ -249,6 +250,14 @@ const STATIC_I18N = {
   '编辑文本 (Markdown)：': 'Edit text (Markdown):',
   '取消': 'Cancel',
   '保存': 'Save',
+  '重置': 'Reset',
+  '确定': 'OK',
+  '请确认': 'Please Confirm',
+  '选择日期': 'Pick Date',
+  '选择起始日期': 'Pick Start Date',
+  '选择截止日期': 'Pick Executed-through Date',
+  '选择新起始日期': 'Pick New Start Date',
+  '查找单日': 'Find a Single Day',
   // 页脚与其他
   '页脚': 'Footer'
 };
@@ -304,7 +313,7 @@ function applyStaticI18n() {
   }
 }
 
-// 预设示例人员名单 (22人)：中文模式为中文译名，英文模式为英文原名
+// 预设示例人员名单 ：中文模式为中文译名，英文模式为英文原名
 const SAMPLE_NAMES_TEXT = `诺里斯, 皮亚斯特里, 拉塞尔, 安东内利, 勒克莱尔, 汉密尔顿, 维斯塔潘, 哈贾尔, 阿隆索, 斯特罗尔, 阿尔本, 塞恩斯, 比尔曼, 奥康, 加斯利, 科拉平托, 劳森, 林德布拉德, 霍肯伯格, 博托莱托, 佩雷斯, 博塔斯`;
 
 // 英文模式下的示例名单（与中文名单一一对应）
@@ -413,24 +422,18 @@ const elements = {
     document.getElementById('panel-step-5')
   ],
 
-  // 步骤标题导览菜单
-  stepMenus: [
-    null,
-    document.getElementById('step-menu-1'),
-    document.getElementById('step-menu-2'),
-    document.getElementById('step-menu-3'),
-    document.getElementById('step-menu-4'),
-    document.getElementById('step-menu-5')
-  ],
+  // 顶部导航条（步骤描述 + 上一步/下一步 + 居中导览菜单）
+  topBtnBack: document.getElementById('top-btn-back'),
+  topBtnNext: document.getElementById('top-btn-next'),
+  topStepTitle: document.getElementById('top-step-title'),
+  topStepNumber: document.getElementById('top-step-number'),
+  topStepText: document.getElementById('top-step-text'),
+  topNextIcon: document.getElementById('top-next-icon'),
+  topStepMenu: document.getElementById('top-step-menu'),
 
-  // 修改自旧排班表流程的步骤导览菜单（索引 0 未用，1~4 对应各步）
-  editStepMenus: [
-    null,
-    document.getElementById('edit-step-menu-1'),
-    document.getElementById('edit-step-menu-2'),
-    document.getElementById('edit-step-menu-3'),
-    document.getElementById('edit-step-menu-4')
-  ],
+  // 步骤标题导览菜单（兼容旧引用：现统一指向顶部菜单）
+  stepMenus: [],
+  editStepMenus: [],
 
   // Step 1
   namesInput: document.getElementById('names-input'),
@@ -442,7 +445,6 @@ const elements = {
   btnIncreaseDaily: document.getElementById('btn-increase-daily'),
   step1CycleHint: document.getElementById('step-1-cycle-hint'),
   step1Error: document.getElementById('step-1-error'),
-  btnToStep2: document.getElementById('btn-to-step-2'),
 
   // Step 2
   statTotalPeople: document.getElementById('stat-total-people'),
@@ -457,7 +459,6 @@ const elements = {
   schedulePersonStatsList: document.getElementById('schedule-person-stats-list'),
   btnEditAssignments: document.getElementById('btn-edit-assignments'),
   btnReshuffle: document.getElementById('btn-reshuffle'),
-  btnToStep3: document.getElementById('btn-to-step-3'),
 
   // Step 2 Modal 手工编辑弹窗
   modalEditAssignments: document.getElementById('modal-edit-assignments'),
@@ -469,10 +470,23 @@ const elements = {
   modalEditErrors: document.getElementById('modal-edit-errors'),
   modalEditErrorsList: document.getElementById('modal-edit-errors-list'),
 
+  // Smartisan 确认对话框（confirmDialog 复用）与 Date Time Picker 弹窗
+  modalConfirm: document.getElementById('modal-confirm'),
+  modalConfirmTitle: document.getElementById('modal-confirm-title'),
+  modalConfirmBody: document.getElementById('modal-confirm-body'),
+  btnConfirmOk: document.getElementById('btn-confirm-ok'),
+  btnConfirmCancel: document.getElementById('btn-confirm-cancel'),
+  modalDatePicker: document.getElementById('modal-date-picker'),
+  btnPickerConfirm: document.getElementById('btn-picker-confirm'),
+  btnPickerCancel: document.getElementById('btn-picker-cancel'),
+  pickerTitle: document.getElementById('picker-title'),
+  pickerColYear: document.getElementById('picker-col-year'),
+  pickerColMonth: document.getElementById('picker-col-month'),
+  pickerColDay: document.getElementById('picker-col-day'),
+
   // Step 3
   startDateInput: document.getElementById('start-date-input'),
   startDateWeekdayTag: document.getElementById('start-date-weekday-tag'),
-  btnToStep4: document.getElementById('btn-to-step-4'),
 
   // Step 4 (月历选择器)
   calStatRangeStart: document.getElementById('cal-stat-range-start'),
@@ -492,7 +506,6 @@ const elements = {
   btnJumpStartMonth: document.getElementById('btn-jump-start-month'),
   btnJumpEndMonth: document.getElementById('btn-jump-end-month'),
   calendarGrid: document.getElementById('calendar-grid'),
-  btnToStep5: document.getElementById('btn-to-step-5'),
 
   // Step 5 (卡片、表格与文本共用同一视图切换器)
   markdownOutput: document.getElementById('markdown-output'),
@@ -510,7 +523,6 @@ const elements = {
   btnClearTableSearch: document.getElementById('btn-clear-table-search'),
   searchResultStats: document.getElementById('search-result-stats'),
   tableEmptySearch: document.getElementById('table-empty-search'),
-  btnRestart: document.getElementById('btn-restart'),
 
   //  顺延自旧排班表流程
   editPanels: [
@@ -524,8 +536,6 @@ const elements = {
   btnEditImportFile: document.getElementById('btn-edit-import-file'),
   editImportTextarea: document.getElementById('edit-import-textarea'),
   editImportError: document.getElementById('edit-import-error'),
-  btnEditTo2: document.getElementById('btn-edit-to-2'),
-  btnEditTo3: document.getElementById('btn-edit-to-3'),
   editExecutedThroughInput: document.getElementById('edit-executed-through-input'),
   editExecutedWeekdayTag: document.getElementById('edit-executed-weekday-tag'),
   editStatRemaining: document.getElementById('edit-stat-remaining'),
@@ -543,7 +553,6 @@ const elements = {
   editExcludedTagsContainer: document.getElementById('edit-excluded-tags-container'),
   editExcludedTagsList: document.getElementById('edit-excluded-tags-list'),
   editCalendarGrid: document.getElementById('edit-calendar-grid'),
-  btnEditGenerate: document.getElementById('btn-edit-generate'),
   editMarkdownOutput: document.getElementById('edit-markdown-output'),
   editFinalTableBody: document.getElementById('edit-final-table-body'),
   editFinalCardsContainer: document.getElementById('edit-final-cards-container'),
@@ -559,7 +568,6 @@ const elements = {
   btnEditClearTableSearch: document.getElementById('edit-btn-clear-table-search'),
   editSearchResultStats: document.getElementById('edit-search-result-stats'),
   editTableEmptySearch: document.getElementById('edit-table-empty-search'),
-  btnEditRestart: document.getElementById('btn-edit-restart'),
 
   // Toast
   toast: document.getElementById('toast'),
@@ -627,10 +635,10 @@ function isWeekendName(name) {
 
 // Toast 消息提示
 let toastTimeout = null;
-function showToast(message, icon = '✓') {
+function showToast(message, icon = '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">check</span>') {
   if (toastTimeout) clearTimeout(toastTimeout);
   elements.toastMessage.textContent = message;
-  elements.toastIcon.textContent = icon;
+  elements.toastIcon.innerHTML = icon;
   elements.toast.classList.remove('opacity-0', '-translate-y-4');
   elements.toast.classList.add('opacity-100', 'translate-y-0');
 
@@ -659,16 +667,11 @@ function toggleStepMenu(anchorButton) {
 }
 
 function renderStepMenu(anchorButton) {
-  const isEditFlow = anchorButton.dataset.flow === 'edit';
-  const stepIndex = parseInt(anchorButton.dataset.step, 10) - 1;
-  const menu = isEditFlow
-    ? elements.editStepMenus[stepIndex + 1]
-    : elements.stepMenus[stepIndex + 1];
-  if (!menu) return;
-
+  if (!elements.topStepMenu) return;
+  const isEditFlow = state.mode === 'editOld';
   const menuItems = getStepMenuItems(isEditFlow);
-  menu.classList.remove('hidden');
-  menu.querySelector('.step-menu-list').innerHTML = menuItems.map((item) => {
+  elements.topStepMenu.classList.remove('hidden');
+  elements.topStepMenu.querySelector('.step-menu-list').innerHTML = menuItems.map((item) => {
     const isCurrent = item.step === state.currentStep;
     return `
       <button
@@ -677,7 +680,7 @@ function renderStepMenu(anchorButton) {
         role="menuitem"
         onclick="selectStepMenuItem(${item.step})"
       >
-        <span class="step-menu-number">${isCurrent ? (t('current') || '当前') : item.step}</span>
+        <span class="step-menu-number">${isCurrent ? `<span class="material-symbols-outlined text-[14px]!" aria-hidden="true">check</span>` : item.step}</span>
         <span>${item.title}</span>
       </button>
     `;
@@ -701,14 +704,82 @@ function selectStepMenuItem(targetStep) {
 function closeStepMenu(anchorButton) {
   if (!anchorButton) return;
   anchorButton.setAttribute('aria-expanded', 'false');
-  const stepIndex = parseInt(anchorButton.dataset.step, 10) - 1;
-  const isEditFlow = anchorButton.dataset.flow === 'edit';
-  (isEditFlow
-    ? elements.editStepMenus[stepIndex + 1]
-    : elements.stepMenus[stepIndex + 1]
-  )?.classList.add('hidden');
+  elements.topStepMenu?.classList.add('hidden');
   if (elements.activeStepMenuAnchor === anchorButton) {
     elements.activeStepMenuAnchor = null;
+  }
+}
+
+// 顶部导航条当前步骤的上一步/下一步跳转目标（由 updateTopBar 维护）
+let topBackTarget = null;
+let topNextTarget = null;
+
+// 同步顶部导航条：主页仅显示站名；其余步骤显示步骤描述 + 上一步/下一步
+function updateTopBar() {
+  if (!elements.topStepTitle || !elements.topStepText) return;
+  const en = window.APP_LANG === 'en';
+
+  // 主页（步骤 0）：隐藏数字与按钮，禁用菜单，仅显示站名
+  if (state.currentStep === 0) {
+    elements.topStepNumber.classList.add('hidden');
+    elements.topStepText.textContent = en ? 'SI Scheduling System' : '能工智人排班系统';
+    elements.topStepTitle.setAttribute('aria-expanded', 'false');
+    elements.topStepTitle.classList.add('pointer-events-none');
+    elements.topBtnBack?.classList.add('hidden!');
+    elements.topBtnNext?.classList.add('hidden!');
+    topBackTarget = null;
+    topNextTarget = null;
+    return;
+  }
+
+  const isEditFlow = state.mode === 'editOld';
+  const step = state.currentStep;
+  const items = getStepMenuItems(isEditFlow);
+  const item = items.find(i => i.step === step);
+  const title = item ? item.title : (en ? `Step ${step}` : `第 ${step} 步`);
+
+  elements.topStepTitle.classList.remove('pointer-events-none');
+  elements.topStepTitle.dataset.flow = isEditFlow ? 'edit' : 'new';
+  elements.topStepNumber.classList.remove('hidden');
+  elements.topStepNumber.textContent = step;
+  elements.topStepText.textContent = title;
+
+  // 上一步：新建流程第 1 步返回主页；旧表流程第 1 步也返回主页
+  elements.topBtnBack?.classList.remove('hidden!');
+  topBackTarget = (step === 1)
+    ? () => goToStep(0)
+    : isEditFlow
+      ? () => goToEditStep(step - 1)
+      : () => goToStep(step - 1);
+
+  // 下一步：最后一步（新建 5 / 旧表 4）换成「重新开始」按钮（仅图标，带确认弹窗），
+  // 新建流程第 4 步图标为对勾（完成）
+  const isLast = isEditFlow ? step === 4 : step === 5;
+  if (isLast) {
+    elements.topBtnNext?.classList.remove('hidden!');
+    if (elements.topNextIcon) elements.topNextIcon.textContent = 'refresh';
+    topNextTarget = async () => {
+      const confirmed = await confirmDialog(isEditFlow
+        ? (t('confirmRestartEdit') || '确定要重新开始修改旧排班表吗？当前导入内容与设置将被重置。')
+        : (t('confirmRestart') || '确定要重新开始排班吗？当前所有配置将被重置。'));
+      if (!confirmed) return;
+      state.excludedHolidays.clear();
+      state.manualWorkdays.clear();
+      state.scheduleAssignments = null;
+      if (isEditFlow) {
+        resetEditOldFlow();
+      } else {
+        goToStep(1);
+      }
+    };
+  } else {
+    elements.topBtnNext?.classList.remove('hidden!');
+    if (elements.topNextIcon) {
+      elements.topNextIcon.textContent = (!isEditFlow && step === 4) ? 'check' : 'arrow_forward';
+    }
+    topNextTarget = isEditFlow
+      ? (step === 1 ? () => handleEditToStep2() : () => goToEditStep(step + 1))
+      : () => goToStep(step + 1);
   }
 }
 
@@ -921,6 +992,7 @@ function goToStep(targetStep) {
   elements.editPanels.forEach(p => p && p.classList.add('hidden'));
 
   state.currentStep = targetStep;
+  updateTopBar();
   // 将当前步骤同步到网址参数 (?step=N)，步骤 0 不带参数
   const langQs = window.APP_LANG === 'en' ? 'lang=en&' : '';
   const newUrl = targetStep > 0 ? `${location.pathname}?${langQs}step=${targetStep}` : (window.APP_LANG === 'en' ? `${location.pathname}?lang=en` : location.pathname);
@@ -1058,7 +1130,7 @@ function saveEditAssignmentsModal() {
     elements.modalEditErrorsList.innerHTML = result.errors.map(err => `<li>${err}</li>`).join('');
     elements.modalEditErrors.classList.remove('hidden');
     elements.modalEditErrors.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    showToast(t('error') || '错误', '✗');
+    showToast(t('error') || '错误', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">error</span>');
     return;
   }
 
@@ -1140,7 +1212,7 @@ function isScheduleDateOutsideRange(dateStr, validRange) {
 function validateScheduleDateSelection(dateStr) {
   const validRange = getScheduleDateRange();
   if (isScheduleDateOutsideRange(dateStr, validRange)) {
-    showToast(tf('onlyInRange', { s: validRange.start, e: validRange.end }) || `只能选择 ${validRange.start} 至 ${validRange.end} 内的日期`, '⚠️');
+    showToast(tf('onlyInRange', { s: validRange.start, e: validRange.end }) || `只能选择 ${validRange.start} 至 ${validRange.end} 内的日期`, '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
     return true;
   }
   return false;
@@ -1205,9 +1277,8 @@ function getQuickDateState(dateStr) {
 
 function updateQuickDateState() {
   const quickState = getQuickDateState(elements.calendarQuickDateInput.value);
-  elements.calendarQuickDateButton.textContent = elements.calendarQuickDateInput.value
-    ? elements.calendarQuickDateInput.value.replaceAll('-', '/')
-    : t('qUnselected') || '请选择';
+  // 查找单日输入框即选择按钮（Smartisan Date Time Picker 弹窗触发器），
+  // 值保持 YYYY-MM-DD 供各 handleQuick* 读取；未选择时为空、显示 placeholder"请选择"
   elements.calendarQuickDateState.textContent = quickState.message;
 
   const statusStyles = {
@@ -1231,6 +1302,142 @@ function updateQuickDateState() {
   elements.btnQuickResetDate.classList.toggle('opacity-40', elements.btnQuickResetDate.disabled);
   elements.btnQuickResetDate.classList.toggle('cursor-not-allowed', elements.btnQuickResetDate.disabled);
 }
+
+// ----------------------------------------------------
+// Smartisan Date Time Picker（Kit 147:276 三列滚轮）与确认对话框
+// 所有 [data-picker-field] 日期输入框点击时弹出本弹窗，确认后写回
+// input.value 并派发 change 事件——原有业务监听逻辑零改动
+// ----------------------------------------------------
+
+const SMT_PICKER = {
+  itemPitch: 54,   // 行高 38 + 间距 16（style.css .smt-picker__col > span）
+  years: [],
+  months: [],
+  days: [],
+  value: { y: 2026, m: 1, d: 1 }, // 当前滚轮选中值（m/d 为 1 起始）
+  min: '',         // YYYY-MM-DD 或 ''
+  max: '',
+  onConfirm: null
+};
+
+// 生成滚轮列内容（aria-selected 高亮由 CSS 处理；滚动定位统一走 scrollToPickerValue）
+function buildPickerCol(colEl, values, selected) {
+  colEl.innerHTML = values
+    .map(v => `<span data-v="${v.v}" aria-selected="${v.v === selected ? 'true' : 'false'}">${v.t}</span>`)
+    .join('');
+}
+
+// 打开滚轮弹窗；opts: { value, min, max, title, onConfirm }
+function openDatePickerDialog(opts) {
+  const [y, m, d] = opts.value.split('-').map(Number);
+  SMT_PICKER.min = opts.min || '';
+  SMT_PICKER.max = opts.max || '';
+  SMT_PICKER.onConfirm = opts.onConfirm || null;
+  SMT_PICKER.value = { y, m, d };
+  elements.pickerTitle.textContent = opts.title || `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+  // 年份范围：以 min/max 为界，缺省前后各扩 10 年
+  const minY = SMT_PICKER.min ? Number(SMT_PICKER.min.slice(0, 4)) : y - 10;
+  const maxY = SMT_PICKER.max ? Number(SMT_PICKER.max.slice(0, 4)) : y + 10;
+  SMT_PICKER.years = [];
+  for (let yy = minY; yy <= maxY; yy++) SMT_PICKER.years.push({ v: yy, t: `${yy}` });
+  buildPickerCol(elements.pickerColYear, SMT_PICKER.years, y);
+
+  refreshPickerCols();
+  elements.modalDatePicker.classList.remove('hidden');
+  // 显示后再定位滚轮（display:none 时 clientHeight 为 0，无法计算滚动位置）
+  requestAnimationFrame(() => {
+    scrollToPickerValue(elements.pickerColYear, y);
+    scrollToPickerValue(elements.pickerColMonth, SMT_PICKER.value.m);
+    scrollToPickerValue(elements.pickerColDay, SMT_PICKER.value.d);
+  });
+}
+
+// 将滚轮列滚动到指定值（居中到选中带）
+function scrollToPickerValue(colEl, v) {
+  const target = colEl.querySelector(`span[data-v="${v}"]`);
+  if (target) {
+    colEl.scrollTop = target.offsetTop - (colEl.clientHeight - target.offsetHeight) / 2;
+  }
+}
+
+// 按当前年月重算日列（含闰月天数），并刷新三列选中态（保持各列滚动位置）
+function refreshPickerCols() {
+  const { y, m, d } = SMT_PICKER.value;
+  SMT_PICKER.months = [];
+  for (let mm = 1; mm <= 12; mm++) SMT_PICKER.months.push({ v: mm, t: `${mm} 月` });
+  const daysInMonth = new Date(y, m, 0).getDate();
+  SMT_PICKER.days = [];
+  for (let dd = 1; dd <= daysInMonth; dd++) SMT_PICKER.days.push({ v: dd, t: `${dd} 日` });
+
+  const prevScroll = [elements.pickerColMonth, elements.pickerColDay].map(c => c.scrollTop);
+  buildPickerCol(elements.pickerColMonth, SMT_PICKER.months, m);
+  const clampedDay = Math.min(d, daysInMonth);
+  if (clampedDay !== d) SMT_PICKER.value.d = clampedDay;
+  buildPickerCol(elements.pickerColDay, SMT_PICKER.days, clampedDay);
+  elements.pickerColMonth.scrollTop = prevScroll[0];
+  elements.pickerColDay.scrollTop = prevScroll[1];
+}
+
+// 从滚动位置读回选中值（吸附由 scroll-snap 保证，取距选中带中心最近的项）
+function readPickerCol(colEl) {
+  const center = colEl.scrollTop + colEl.clientHeight / 2;
+  let best = null;
+  colEl.querySelectorAll('span').forEach(sp => {
+    const mid = sp.offsetTop + sp.offsetHeight / 2;
+    if (best === null || Math.abs(mid - center) < Math.abs(best.mid - center)) {
+      best = { v: Number(sp.dataset.v), mid };
+    }
+  });
+  return best ? best.v : 1;
+}
+
+// 滚轮滚动结束（scroll 事件停止 120ms 后）刷新高亮与标题
+function schedulePickerScrollSync(colEl) {
+  clearTimeout(colEl._smtSyncTimer);
+  colEl._smtSyncTimer = setTimeout(() => {
+    const idx = ['pickerColYear', 'pickerColMonth', 'pickerColDay'].find(k => elements[k] === colEl);
+    if (idx === 'pickerColYear') SMT_PICKER.value.y = readPickerCol(colEl);
+    if (idx === 'pickerColMonth') SMT_PICKER.value.m = readPickerCol(colEl);
+    if (idx === 'pickerColDay') SMT_PICKER.value.d = readPickerCol(colEl);
+    const { y, m, d } = SMT_PICKER.value;
+    elements.pickerTitle.textContent = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    refreshPickerCols();
+  }, 120);
+}
+
+function closeDatePickerDialog() {
+  elements.modalDatePicker.classList.add('hidden');
+}
+
+// 确认：拼回 YYYY-MM-DD（不早于 min / 不晚于 max 已由限制保证）
+function confirmDatePickerDialog() {
+  const { y, m, d } = SMT_PICKER.value;
+  closeDatePickerDialog();
+  const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  if (SMT_PICKER.onConfirm) SMT_PICKER.onConfirm(dateStr);
+}
+
+// Smartisan 确认对话框（替代 window.confirm）：返回 Promise<boolean>
+function confirmDialog(message, title) {
+  return new Promise(resolve => {
+    elements.modalConfirmTitle.textContent = title || t('confirmTitle') || '请确认';
+    elements.modalConfirmBody.textContent = message;
+    elements.modalConfirm.classList.remove('hidden');
+    const done = val => {
+      elements.modalConfirm.classList.add('hidden');
+      elements.btnConfirmOk.onclick = null;
+      elements.btnConfirmCancel.onclick = null;
+      resolve(val);
+    };
+    elements.btnConfirmOk.onclick = () => done(true);
+    elements.btnConfirmCancel.onclick = () => done(false);
+    elements.modalConfirm.onclick = e => {
+      if (e.target === elements.modalConfirm) done(false);
+    };
+  });
+}
+
 
 function renderStep4Calendar() {
   const totalDays = state.scheduleAssignments.totalDays;
@@ -1388,7 +1595,7 @@ function buildCalendarCellHtml(dateStr, dayNum, isOtherMonth, datesMap, validRan
         <span class="text-xs font-bold ${textColor}">${dayNum}</span>
         ${badgeHtml}
       </div>
-      <div class="text-[10px] text-right ${isColored ? 'text-white/70' : 'text-s-grey-600'} font-mono">
+      <div class="text-[10px] text-right ${isColored ? 'text-white/70' : 'text-s-grey-600'}">
         ${dateStr.slice(5)}
       </div>
     </div>
@@ -1408,10 +1615,10 @@ function handleCalendarCellClick(dateStr) {
     showToast(tf('restoredInitial', { d: dateStr }) || `已恢复初始状态：${dateStr}`);
   } else if (quickState.dateStatus === 'weekend') {
     state.manualWorkdays.add(dateStr);
-    showToast(tf('setMakeup', { d: dateStr }) || `已将 ${dateStr} 设为调休排班！`, '✅');
+    showToast(tf('setMakeup', { d: dateStr }) || `已将 ${dateStr} 设为调休排班！`, '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">task_alt</span>');
   } else {
     state.excludedHolidays.add(dateStr);
-    showToast(tf('setOff', { d: dateStr }) || `已将 ${dateStr} 设为跳过放假`, '🚫');
+    showToast(tf('setOff', { d: dateStr }) || `已将 ${dateStr} 设为跳过放假`, '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">block</span>');
   }
 
   rerenderActiveCalendar();
@@ -1444,8 +1651,8 @@ function renderExcludedAndManualTags() {
     const wk = weekdayName(d.getDay());
     tagsHtml += `
       <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-s-chip-red-bg0 border border-s-chip-red-border text-white text-xs font-mono shadow-s-card-sm">
-        <span>🚫 ${dateStr} (${wk}) ${t('offTag') || '休'}</span>
-        <button type="button" onclick="removeHolidayTag('${dateStr}')" class="active:text-white/70 font-bold ml-1 text-sm leading-none" title="${t('undoHoliday') || '撤销放假'}">✕</button>
+        <span class="inline-flex items-center gap-1"><span class="material-symbols-outlined text-[14px]!" aria-hidden="true">block</span>${dateStr} (${wk}) ${t('offTag') || '休'}</span>
+        <button type="button" onclick="removeHolidayTag('${dateStr}')" class="active:text-white/70 ml-1 inline-flex leading-none" title="${t('undoHoliday') || '撤销放假'}"><span class="material-symbols-outlined text-[14px]!" aria-hidden="true">close</span></button>
       </span>
     `;
   });
@@ -1456,8 +1663,8 @@ function renderExcludedAndManualTags() {
     const wk = weekdayName(d.getDay());
     tagsHtml += `
       <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-s-chip-yellow-bg border border-s-chip-yellow-border text-white text-xs font-mono shadow-s-card-sm">
-        <span>✅ ${dateStr} (${wk}) ${t('makeupTag') || '补班'}</span>
-        <button type="button" onclick="removeManualWorkdayTag('${dateStr}')" class="active:text-white/70 font-bold ml-1 text-sm leading-none" title="${t('undoMakeup') || '撤销补班'}">✕</button>
+        <span class="inline-flex items-center gap-1"><span class="material-symbols-outlined text-[14px]!" aria-hidden="true">task_alt</span>${dateStr} (${wk}) ${t('makeupTag') || '补班'}</span>
+        <button type="button" onclick="removeManualWorkdayTag('${dateStr}')" class="active:text-white/70 ml-1 inline-flex leading-none" title="${t('undoMakeup') || '撤销补班'}"><span class="material-symbols-outlined text-[14px]!" aria-hidden="true">close</span></button>
       </span>
     `;
   });
@@ -1482,20 +1689,20 @@ function removeManualWorkdayTag(dateStr) {
 function handleQuickSetHoliday() {
   const val = elements.calendarQuickDateInput.value;
   if (!val) {
-    showToast(t('pickDateFirst') || '请先选择日期', '⚠️');
+    showToast(t('pickDateFirst') || '请先选择日期', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
     return;
   }
   if (validateScheduleDateSelection(val)) return;
   const quickState = getQuickDateState(val);
   if (!quickState.allowedActions.holiday) {
-    showToast(quickState.dateStatus === 'manual-holiday' ? (t('alreadyHoliday') || '该日期已是手动节假日') : (t('errDefaultToMakeup') || '默认排班日期不能设为调休补班'), '⚠️');
+    showToast(quickState.dateStatus === 'manual-holiday' ? (t('alreadyHoliday') || '该日期已是手动节假日') : (t('errDefaultToMakeup') || '默认排班日期不能设为调休补班'), '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
     return;
   }
 
   state.manualWorkdays.delete(val);
   state.excludedHolidays.add(val);
   renderStep4Calendar();
-  showToast(tf('setOff', { d: val }) || `已将 ${val} 设为跳过放假`, '🚫');
+  showToast(tf('setOff', { d: val }) || `已将 ${val} 设为跳过放假`, '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">block</span>');
   elements.calendarQuickDateInput.value = '';
   updateQuickDateState();
 }
@@ -1503,20 +1710,20 @@ function handleQuickSetHoliday() {
 function handleQuickSetWorkday() {
   const val = elements.calendarQuickDateInput.value;
   if (!val) {
-    showToast(t('pickDateFirst') || '请先选择日期', '⚠️');
+    showToast(t('pickDateFirst') || '请先选择日期', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
     return;
   }
   if (validateScheduleDateSelection(val)) return;
   const quickState = getQuickDateState(val);
   if (!quickState.allowedActions.workday) {
-    showToast(quickState.dateStatus === 'default-workday' ? (t('noMakeupNeeded') || '默认排班日期无需调休补班') : (t('errWeekendHoliday') || '双休日不能设为手动节假日'), '⚠️');
+    showToast(quickState.dateStatus === 'default-workday' ? (t('noMakeupNeeded') || '默认排班日期无需调休补班') : (t('errWeekendHoliday') || '双休日不能设为手动节假日'), '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
     return;
   }
 
   state.excludedHolidays.delete(val);
   state.manualWorkdays.add(val);
   renderStep4Calendar();
-  showToast(tf('setMakeup', { d: val }) || `已将 ${val} 设为调休排班！`, '✅');
+  showToast(tf('setMakeup', { d: val }) || `已将 ${val} 设为调休排班！`, '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">task_alt</span>');
   elements.calendarQuickDateInput.value = '';
   updateQuickDateState();
 }
@@ -1524,14 +1731,14 @@ function handleQuickSetWorkday() {
 function handleQuickResetDate() {
   const val = elements.calendarQuickDateInput.value;
   if (!val) {
-    showToast(t('pickDateFirst') || '请先选择日期', '⚠️');
+    showToast(t('pickDateFirst') || '请先选择日期', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
     return;
   }
   if (validateScheduleDateSelection(val)) return;
 
   const quickState = getQuickDateState(val);
   if (!quickState.allowedActions.reset) {
-    showToast(t('alreadyInitial') || '该日期已是初始状态', '⚠️');
+    showToast(t('alreadyInitial') || '该日期已是初始状态', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
     return;
   }
 
@@ -1571,18 +1778,19 @@ function renderFinalSchedule() {
   renderFilterableTable('');
 }
 
-// 视图切换辅助函数
-function setScheduleView(viewMode) {
-  state.visualSubView = viewMode;
-  const inactiveClass = 'px-2.5 py-1 rounded-s-sm text-s-grey-800 active:text-s-grey-900 font-medium';
-  const activeClass = 'px-2.5 py-1 rounded-s-sm bg-white text-s-blue-400 border-[0.8px] border-s-grey-400 font-bold';
-  const isTextView = viewMode === 'text';
-  const isCardsView = viewMode === 'cards';
-  const els = getActiveViewEls();
+  // 视图切换辅助函数（Smartisan 分段 Tab：选中段加 is-active，内凹灰底白字）
+  function setScheduleView(viewMode) {
+    state.visualSubView = viewMode;
+    const isTextView = viewMode === 'text';
+    const isCardsView = viewMode === 'cards';
+    const els = getActiveViewEls();
 
-  els.tabs.cards.className = isCardsView ? activeClass : inactiveClass;
-  els.tabs.table.className = viewMode === 'table' ? activeClass : inactiveClass;
-  els.tabs.text.className = isTextView ? activeClass : inactiveClass;
+    els.tabs.cards.classList.toggle('is-active', isCardsView);
+    els.tabs.cards.setAttribute('aria-selected', String(isCardsView));
+    els.tabs.table.classList.toggle('is-active', viewMode === 'table');
+    els.tabs.table.setAttribute('aria-selected', String(viewMode === 'table'));
+    els.tabs.text.classList.toggle('is-active', isTextView);
+    els.tabs.text.setAttribute('aria-selected', String(isTextView));
 
   els.cards.classList.toggle('hidden', !isCardsView);
   els.tableScroll.classList.toggle('hidden', viewMode !== 'table');
@@ -1734,13 +1942,13 @@ function fallbackCopyText(text) {
 }
 
 // 导出并下载排班表 CSV 文件 (带 BOM 防止 Excel 乱码)
-function downloadCsvFile() {
+async function downloadCsvFile() {
   const { items } = getActiveScheduleData();
   if (!items || items.length === 0) return;
 
   const en = window.APP_LANG === 'en';
   const message = t('csvExportConfirm') || '导出 CSV 前请注意：\n• 打开后若日期显示为一行井号 "#"，需自行加宽单元格列宽；\n• CSV 不支持格式的保存，故您需要自行另存为 xlsx 等格式。\n\n是否继续导出？';
-  if (!window.confirm(message)) return;
+  if (!(await confirmDialog(message))) return;
 
   const csvContent = formatToCsv(items);
   const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1945,7 +2153,13 @@ function generateStandaloneHtml(items, stats) {
       color: #929292;
       font-size: 13px;
       pointer-events: none;
+      display: inline-flex;
     }
+    /* 内嵌 SVG 图标（Material Symbols Outlined 路径），currentColor 继承文字色 */
+    .search-icon svg, .btn-clear svg { width: 14px; height: 14px; display: block; }
+    .btn-csv svg, .btn-print svg, .btn-copy svg { width: 14px; height: 14px; display: block; }
+    .empty-state svg { width: 28px; height: 28px; display: inline-block; }
+    .app-toast svg { width: 15px; height: 15px; display: block; }
     .btn-clear {
       position: absolute;
       right: 8px;
@@ -1954,7 +2168,6 @@ function generateStandaloneHtml(items, stats) {
       background: none;
       border: none;
       color: #929292;
-      font-weight: bold;
       cursor: pointer;
       display: none;
       padding: 4px;
@@ -2286,8 +2499,8 @@ function generateStandaloneHtml(items, stats) {
           <div class="subtitle">${en ? `Schedule period: ${stats.startDate} to ${stats.endDate} <br> Click a name to filter quickly.` : `排班区间：${stats.startDate} 至 ${stats.endDate} <br> 点击人名亦可快速筛选。`}</div>
         </div>
         <div class="header-actions">
-          <button class="btn-csv" onclick="downloadCsv()">${en ? 'CSV' : '表格'}</button>
-          <button class="btn-print" onclick="window.print()">PDF</button>
+          <button class="btn-csv" onclick="downloadCsv()"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 2v3h-4V5h4zM8 19H5v-3h3v3zm0-5H5v-4h3v4zm0-6V5h3v3H8zm5 11h-3v-3h3v3zm0-5h-3v-4h3v4zm0-6V5h3v3h-3zm6 11h-4v-3h4v3zm0-5h-4v-4h4v4z"/></svg><span>${en ? 'CSV' : '表格'}</span></button>
+          <button class="btn-print" onclick="window.print()"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M19 8H5a3 3 0 0 0-3 3v6h4v4h12v-4h4v-6a3 3 0 0 0-3-3zm-3 11H8v-5h8v5zm3-7a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm-1-9H6v4h12V3z"/></svg><span>PDF</span></button>
         </div>
       </div>
       <div class="stats-grid">
@@ -2313,9 +2526,9 @@ function generateStandaloneHtml(items, stats) {
     <div class="table-container">
       <div class="toolbar">
         <div class="search-wrapper">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></span>
           <input type="text" id="searchInput" class="search-input" placeholder="${en ? 'Search by name, date or weekday...' : '输入姓名、日期或星期搜索...'}">
-          <button id="btnClear" class="btn-clear" onclick="clearSearch()">✕</button>
+          <button id="btnClear" class="btn-clear" onclick="clearSearch()" aria-label="${en ? 'Clear search' : '清空搜索'}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
         </div>
         <div class="toolbar-right">
           <div id="statsInfo" class="toolbar-info">${en ? items.length + ' days in total' : '共 ' + items.length + ' 天'}</div>
@@ -2346,13 +2559,13 @@ function generateStandaloneHtml(items, stats) {
       </div>
 
       <div id="emptyState" class="empty-state">
-        <div style="font-size: 28px; margin-bottom: 8px;">🔍</div>
+        <div style="margin-bottom: 8px; color: #929292; display: flex; justify-content: center;"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
         ${en ? 'No schedule records match the keyword' : '未找到与关键词匹配的排班记录'}
       </div>
 
       <div id="markdownWrapper" class="markdown-wrapper">
         <div class="copy-wrapper">
-          <button id="btnCopy" class="btn-copy" onclick="copyMarkdown()" aria-label="${en ? 'Copy Markdown text' : '复制 Markdown 文本'}" title="${en ? 'Copy Markdown text' : '复制 Markdown 文本'}">${en ? 'Copy' : '复制'}</button>
+          <button id="btnCopy" class="btn-copy" onclick="copyMarkdown()" aria-label="${en ? 'Copy Markdown text' : '复制 Markdown 文本'}" title="${en ? 'Copy Markdown text' : '复制 Markdown 文本'}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg><span>${en ? 'Copy' : '复制'}</span></button>
         </div>
         <textarea id="markdownOutput" class="markdown-output" readonly></textarea>
       </div>
@@ -2364,7 +2577,7 @@ function generateStandaloneHtml(items, stats) {
   </footer>
 
   <div id="appToast" class="app-toast">
-    <span>✓</span>
+    <span style="display: inline-flex;"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M9.55 18.2 3.8 12.45l1.45-1.45 4.3 4.3 9.05-9.05 1.45 1.45z"/></svg></span>
     <span id="appToastMessage">${en ? 'Operation successful' : '操作成功'}</span>
   </div>
 
@@ -2692,21 +2905,21 @@ function goToEditStep(targetStep) {
 
   // 逐步前置校验
   if (targetStep >= 2 && edit.importedItems.length === 0) {
-    showToast(t('errImportFirst') || '请先成功导入旧排班表', '⚠️');
+    showToast(t('errImportFirst') || '请先成功导入旧排班表', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
     return;
   }
   if (targetStep >= 3) {
     if (!edit.executedThrough) {
-      showToast(t('errPickThrough') || '请先选择已执行截止日期', '⚠️');
+      showToast(t('errPickThrough') || '请先选择已执行截止日期', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
       return;
     }
     if (edit.remainingItems.length === 0) {
-      showToast(t('errNoRemaining') || '没有剩余需要重新编排的班次', '⚠️');
+      showToast(t('errNoRemaining') || '没有剩余需要重新编排的班次', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
       return;
     }
   }
   if (targetStep >= 4 && !edit.newStartDate) {
-    showToast(t('errPickNewStart') || '请先选择重新编排的起始日期', '⚠️');
+    showToast(t('errPickNewStart') || '请先选择重新编排的起始日期', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
     return;
   }
 
@@ -2744,6 +2957,7 @@ function goToEditStep(targetStep) {
   elements.panels.forEach(p => p && p.classList.add('hidden'));
 
   state.currentStep = targetStep;
+  updateTopBar();
   // 将当前步骤同步到网址参数 (?editStep=N)
   history.replaceState(null, '', `${location.pathname}?${window.APP_LANG === 'en' ? 'lang=en&' : ''}editStep=${targetStep}`);
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2761,7 +2975,7 @@ function generateEditFinalSchedule() {
 
   // 假期设置可能导致可用工作日不足，需阻断并提示
   if (workdays.length < edit.remainingItems.length) {
-    showToast(tf('errNotEnoughDays', { need: edit.remainingItems.length, have: workdays.length }) || `可用工作日不足：需要 ${edit.remainingItems.length} 天，仅找到 ${workdays.length} 天，请检查假期设置`, '⚠️');
+    showToast(tf('errNotEnoughDays', { need: edit.remainingItems.length, have: workdays.length }) || `可用工作日不足：需要 ${edit.remainingItems.length} 天，仅找到 ${workdays.length} 天，请检查假期设置`, '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
     return false;
   }
 
@@ -2784,7 +2998,7 @@ function handleEditImportFile(event) {
     elements.editImportTextarea.value = String(reader.result || '');
     handleEditParseText();
   };
-  reader.onerror = () => showToast(t('fileReadFailed') || '文件读取失败，请重试', '✗');
+  reader.onerror = () => showToast(t('fileReadFailed') || '文件读取失败，请重试', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">error</span>');
   reader.readAsText(file, 'UTF-8');
   // 清空 input.value 以便再次选择同一文件时仍能触发 change
   event.target.value = '';
@@ -2807,7 +3021,7 @@ function handleEditParseText() {
   }
 
   if (result.items.length === 0) {
-    showToast(t('parseFailed') || '解析失败，请检查内容格式', '✗');
+    showToast(t('parseFailed') || '解析失败，请检查内容格式', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">error</span>');
     return false;
   }
 
@@ -2821,7 +3035,7 @@ function handleEditParseText() {
   elements.editStatRemaining.textContent = '';
 
   if (result.warnings.length > 0) {
-    showToast(tf('parseWarn', { n: result.items.length, w: result.warnings.length }) || `成功解析 ${result.items.length} 天（含 ${result.warnings.length} 条警告）`, '⚠️');
+    showToast(tf('parseWarn', { n: result.items.length, w: result.warnings.length }) || `成功解析 ${result.items.length} 天（含 ${result.warnings.length} 条警告）`, '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
   } else {
     showToast(tf('parseOk', { n: result.items.length }) || `成功解析 ${result.items.length} 天排班记录！`);
   }
@@ -2902,7 +3116,7 @@ function handleEditExecutedThroughChange() {
     renderEditImportedCards();
     elements.editImportError.innerHTML = `已执行截止日期不能早于导入排班的第一天（${firstDate}）：至少需要已执行 1 天。`;
     elements.editImportError.classList.remove('hidden');
-    showToast(t('errThroughEarlyToast') || '已执行截止日期过早，至少需已执行 1 天', '⚠️');
+    showToast(t('errThroughEarlyToast') || '已执行截止日期过早，至少需已执行 1 天', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">warning</span>');
     return;
   }
 
@@ -2927,6 +3141,7 @@ function handleEditNewStartDateChange() {
   if (!val) return;
   state.editOld.newStartDate = val;
 
+  const en = window.APP_LANG === 'en';
   const date = parseDate(val);
   const dayOfWeek = date.getDay();
   const weekday = weekdayName(dayOfWeek);
@@ -3014,8 +3229,8 @@ function renderEditExcludedAndManualTags() {
     const wk = weekdayName(d.getDay());
     tagsHtml += `
       <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-s-chip-red-bg0 border border-s-chip-red-border text-white text-xs font-mono shadow-s-card-sm">
-        <span>🚫 ${dateStr} (${wk}) ${t('offTag') || '休'}</span>
-        <button type="button" onclick="removeHolidayTag('${dateStr}')" class="active:text-white/70 font-bold ml-1 text-sm leading-none" title="${t('undoHoliday') || '撤销放假'}">✕</button>
+        <span class="inline-flex items-center gap-1"><span class="material-symbols-outlined text-[14px]!" aria-hidden="true">block</span>${dateStr} (${wk}) ${t('offTag') || '休'}</span>
+        <button type="button" onclick="removeHolidayTag('${dateStr}')" class="active:text-white/70 ml-1 inline-flex leading-none" title="${t('undoHoliday') || '撤销放假'}"><span class="material-symbols-outlined text-[14px]!" aria-hidden="true">close</span></button>
       </span>
     `;
   });
@@ -3024,8 +3239,8 @@ function renderEditExcludedAndManualTags() {
     const wk = weekdayName(d.getDay());
     tagsHtml += `
       <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-s-chip-yellow-bg border border-s-chip-yellow-border text-white text-xs font-mono shadow-s-card-sm">
-        <span>✅ ${dateStr} (${wk}) ${t('makeupTag') || '补班'}</span>
-        <button type="button" onclick="removeManualWorkdayTag('${dateStr}')" class="active:text-white/70 font-bold ml-1 text-sm leading-none" title="${t('undoMakeup') || '撤销补班'}">✕</button>
+        <span class="inline-flex items-center gap-1"><span class="material-symbols-outlined text-[14px]!" aria-hidden="true">task_alt</span>${dateStr} (${wk}) ${t('makeupTag') || '补班'}</span>
+        <button type="button" onclick="removeManualWorkdayTag('${dateStr}')" class="active:text-white/70 ml-1 inline-flex leading-none" title="${t('undoMakeup') || '撤销补班'}"><span class="material-symbols-outlined text-[14px]!" aria-hidden="true">close</span></button>
       </span>
     `;
   });
@@ -3083,19 +3298,25 @@ function setupEventListeners() {
     handleStep1Inputs();
   });
 
-  elements.btnToStep2.addEventListener('click', () => goToStep(2));
+  // 顶部导航条上一步/下一步
+  elements.topBtnBack.addEventListener('click', () => topBackTarget && topBackTarget());
+  elements.topBtnNext.addEventListener('click', () => topNextTarget && topNextTarget());
 
-  // Step 2: 标签切换与重新打乱
+  // Step 2: 标签切换与重新打乱（Smartisan 分段 Tab：选中段加 is-active）
   elements.tabStep2Days.addEventListener('click', () => {
-    elements.tabStep2Days.className = 'px-3 py-1 rounded-md font-semibold bg-white text-s-blue-400 shadow-xs border border-s-grey-400';
-    elements.tabStep2People.className = 'px-3 py-1 rounded-s-sm font-semibold text-s-grey-800 active:text-s-grey-900';
+    elements.tabStep2Days.classList.add('is-active');
+    elements.tabStep2Days.setAttribute('aria-selected', 'true');
+    elements.tabStep2People.classList.remove('is-active');
+    elements.tabStep2People.setAttribute('aria-selected', 'false');
     elements.schedulePreviewList.classList.remove('hidden');
     elements.schedulePersonStatsList.classList.add('hidden');
   });
 
   elements.tabStep2People.addEventListener('click', () => {
-    elements.tabStep2People.className = 'px-3 py-1 rounded-md font-semibold bg-white text-s-blue-400 shadow-xs border border-s-grey-400';
-    elements.tabStep2Days.className = 'px-3 py-1 rounded-s-sm font-semibold text-s-grey-800 active:text-s-grey-900';
+    elements.tabStep2People.classList.add('is-active');
+    elements.tabStep2People.setAttribute('aria-selected', 'true');
+    elements.tabStep2Days.classList.remove('is-active');
+    elements.tabStep2Days.setAttribute('aria-selected', 'false');
     elements.schedulePersonStatsList.classList.remove('hidden');
     elements.schedulePreviewList.classList.add('hidden');
   });
@@ -3113,23 +3334,14 @@ function setupEventListeners() {
 
   elements.btnReshuffle.addEventListener('click', () => {
     generateAssignments();
-    showToast(t('success') || '成功', '✓');
+    showToast(t('success') || '成功', '<span class="material-symbols-outlined text-[16px]!" aria-hidden="true">check</span>');
   });
-  elements.btnToStep3.addEventListener('click', () => goToStep(3));
 
   // Step 3: 开始日期
   elements.startDateInput.addEventListener('change', handleStartDateChange);
-  elements.btnToStep4.addEventListener('click', () => goToStep(4));
 
   // Step 4: 月历选择器交互
   elements.calendarQuickDateInput.addEventListener('change', updateQuickDateState);
-  elements.calendarQuickDateButton.addEventListener('click', () => {
-    if (typeof elements.calendarQuickDateInput.showPicker === 'function') {
-      elements.calendarQuickDateInput.showPicker();
-    } else {
-      elements.calendarQuickDateInput.click();
-    }
-  });
 
   elements.btnPrevMonth.addEventListener('click', () => {
     state.calViewMonth--;
@@ -3178,8 +3390,6 @@ function setupEventListeners() {
   elements.btnQuickSetWorkday.addEventListener('click', handleQuickSetWorkday);
   elements.btnQuickResetDate.addEventListener('click', handleQuickResetDate);
 
-  elements.btnToStep5.addEventListener('click', () => goToStep(5));
-
   // Step 5: 搜索、切换视图与导出
   elements.tableSearchInput.addEventListener('input', (e) => {
     renderFilterableTable(e.target.value);
@@ -3199,22 +3409,13 @@ function setupEventListeners() {
   elements.btnSubviewTable.addEventListener('click', () => setScheduleView('table'));
   elements.btnSubviewText.addEventListener('click', () => setScheduleView('text'));
 
-  elements.btnRestart.addEventListener('click', () => {
-    if (confirm(t('confirmRestart') || '确定要重新开始排班吗？当前所有配置将被重置。')) {
-      state.excludedHolidays.clear();
-      state.manualWorkdays.clear();
-      state.scheduleAssignments = null;
-      goToStep(1);
-    }
-  });
+  // 步骤 5 底部「重新开始」按钮已移除，重置逻辑统一走顶部导航条右上角刷新按钮
 
   // ----------------------------------------------------
   //  顺延自旧排班表流程
   // ----------------------------------------------------
   elements.btnEditImportFile.addEventListener('click', () => elements.editImportFileInput.click());
   elements.editImportFileInput.addEventListener('change', handleEditImportFile);
-  elements.btnEditTo2.addEventListener('click', handleEditToStep2);
-  elements.btnEditTo3.addEventListener('click', () => goToEditStep(3));
   elements.editExecutedThroughInput.addEventListener('change', handleEditExecutedThroughChange);
   elements.editNewStartDateInput.addEventListener('change', handleEditNewStartDateChange);
 
@@ -3268,8 +3469,6 @@ function setupEventListeners() {
     showToast(t('successReset') || '成功重置');
   });
 
-  elements.btnEditGenerate.addEventListener('click', () => goToEditStep(4));
-
   // 第 4 步：搜索、切换视图与导出（复用按模式取值接口）
   elements.editTableSearchInput.addEventListener('input', (e) => {
     renderFilterableTable(e.target.value);
@@ -3288,10 +3487,29 @@ function setupEventListeners() {
   elements.btnEditSubviewTable.addEventListener('click', () => setScheduleView('table'));
   elements.btnEditSubviewText.addEventListener('click', () => setScheduleView('text'));
 
-  elements.btnEditRestart.addEventListener('click', () => {
-    if (confirm(t('confirmRestartEdit') || '确定要重新开始修改旧排班表吗？当前导入内容与设置将被重置。')) {
-      resetEditOldFlow();
-    }
+  // ----------------------------------------------------
+  // Smartisan Date Time Picker 弹窗：所有 [data-picker-field] 日期输入框共用
+  // ----------------------------------------------------
+  document.querySelectorAll('[data-picker-field]').forEach(input => {
+    input.addEventListener('click', () => openDatePickerDialog({
+      value: input.value ? input.value.replace(/\//g, '-') : getTodayDateStr(),
+      min: input.getAttribute('min') || '',
+      max: input.getAttribute('max') || '',
+      title: input.dataset.pickerTitle || '',
+      onConfirm: dateStr => {
+        input.value = dateStr;
+        input.dispatchEvent(new Event('change', { bubbles: false }));
+      }
+    }));
+  });
+
+  elements.btnPickerConfirm.addEventListener('click', confirmDatePickerDialog);
+  elements.btnPickerCancel.addEventListener('click', closeDatePickerDialog);
+  elements.modalDatePicker.addEventListener('click', e => {
+    if (e.target === elements.modalDatePicker) closeDatePickerDialog();
+  });
+  [elements.pickerColYear, elements.pickerColMonth, elements.pickerColDay].forEach(col => {
+    col.addEventListener('scroll', () => schedulePickerScrollSync(col));
   });
 }
 

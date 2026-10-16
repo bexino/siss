@@ -39,10 +39,10 @@
   --color-s-dialog-action: #f7f7f7;
   --color-s-dialog-action-pressed: #dfdfdf;
   --color-s-dialog-action-text: #5e80d0;
-  --color-s-toast-top: #fcf6e6;
-  --color-s-toast-bottom: #fcf3dc;
-  --color-s-toast-border: #d2b89c;
-  --color-s-toast-text: #ad8a67;
+  --color-s-toast-top: #e7edfd;
+  --color-s-toast-bottom: #dde6fb;
+  --color-s-toast-border: #93b2f7;
+  --color-s-toast-text: #5079d9;
   --color-s-icon: #929292;
   --color-s-icon-chevron: #b2b2b2;
   --color-s-icon-disabled: #c7c7c7;
@@ -93,7 +93,7 @@
   background-image: linear-gradient(180deg, #ebebeb, #f2f2f2);
 }
 @utility bg-s-grad-toast {
-  background-image: linear-gradient(180deg, #fcf6e6, #fcf3dc);
+  background-image: linear-gradient(180deg, #e7edfd, #dde6fb);
 }
 
 /* Geist 可变字体（本地缓存，字重 100-900 连续可调，仅覆盖英文字符） */
@@ -115,17 +115,41 @@ body {
    保留壳类：JS 动态引用类名，内部用 @apply 引用标准工具类
    ============================================================ */
 
-/* 步骤标题导览按钮（JS 用 closest('.step-title-button') 引用） */
+/* Smartisan 分段 Tab（全站统一的视图切换标签，参照 Kit .s-tabs：
+   细描边外框 + 未选中白底灰字 + 选中段内凹灰底白字 #b2b2b2） */
+.smtabs {
+  @apply inline-flex items-stretch border-[0.8px] border-s-grey-400 rounded-s-md overflow-hidden text-xs font-bold;
+}
+
+.smtabs > button {
+  @apply px-3 py-1 bg-white text-s-grey-800 font-bold cursor-pointer whitespace-nowrap;
+}
+
+.smtabs > button + button {
+  @apply border-l-[0.4px] border-s-grey-200;
+}
+
+/* 选中段：内凹灰底白字（阴影含 inset 描边 #a7a7a7，无法用单一工具类表达，
+   对应 Kit --s-inset-tab + inset ring） */
+.smtabs > button.is-active {
+  color: #ffffff;
+  background: #b2b2b2;
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.06), inset 0 0 0 0.4px #a7a7a7;
+  border-color: transparent;
+}
+
+/* 步骤标题（顶部导航条内，正文样式：无背景无边框，数字蓝、文字灰；
+   JS 用 closest('.step-title-button') 引用） */
 .step-title-button {
-  @apply inline-flex w-max max-w-none items-center flex-nowrap gap-3 py-1.5 px-2.5 -my-1.5 -mx-2.5 rounded-full border-[0.8px] border-s-grey-400 bg-white text-left cursor-pointer active:bg-s-grey-200 focus-visible:bg-s-grey-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-s-chip-blue-border;
+  @apply inline-flex items-center flex-nowrap gap-2 min-w-0 text-left cursor-pointer focus-visible:outline-none focus-visible:opacity-80;
 }
 
 .step-title-number {
-  @apply shrink-0 inline-flex min-w-7 h-7 items-center justify-center px-1.5 rounded-full bg-s-primary border-[0.8px] border-s-blue-500 text-white text-sm leading-tight font-semibold;
+  @apply shrink-0 text-s-blue-400 text-base font-semibold leading-tight;
 }
 
 .step-title-text {
-  @apply flex-none min-w-max whitespace-nowrap text-xl font-bold text-s-grey-800;
+  @apply truncate text-base font-normal text-s-grey-600 whitespace-nowrap;
 }
 
 /* 步骤导览菜单（JS 动态生成 item 并用 closest 引用） */
@@ -157,7 +181,16 @@ body {
 }
 
 .step-menu-item.is-current .step-menu-number {
-  @apply border-white bg-s-blue-500 text-white;
+  @apply border-transparent bg-s-blue-500 text-white;
+}
+
+/* 当前项徽标内的对勾图标：行高对齐防上浮（font-size: inherit 覆盖 Google 样式表的固定 24px，
+   再用工具类指定 14px） */
+.step-menu-number .material-symbols-outlined {
+  display: block;
+  line-height: inherit;
+  vertical-align: middle;
+  margin: -1px auto 0;
 }
 
 /* 日历单元格（JS 模板拼接，保留壳类） */
@@ -229,4 +262,207 @@ mark.search-highlight {
   height: 8px;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.045), rgba(0, 0, 0, 0));
   pointer-events: none;
+}
+
+/* ============================================================
+   Smartisan Dialog（Kit 248:871 / 253:1210 / 253:1049）与
+   Date Time Picker（Kit 147:276）壳类：弹窗由 JS 控制显隐
+   ============================================================ */
+
+/* 弹窗遮罩（Kit --s-overlay rgba(0,0,0,.6)，出现时 0.15s 淡入） */
+.smt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* .smt-overlay 的 display:flex 会压过工具层 .hidden（未分层样式优先），需显式覆盖 */
+.smt-overlay.hidden,
+.smt-overlay[hidden] {
+  display: none;
+}
+
+.smt-overlay:not(.hidden):not([hidden]) {
+  animation: smt-fade-in 0.15s ease;
+}
+
+@keyframes smt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Dialog Action Button：高 54、底 #f7f7f7（s-dialog-action）、顶线 #e8e8e8、按下 #dfdfdf */
+.smt-dialog-action-btn {
+  @apply flex-1 h-[54px] cursor-pointer text-center text-sm font-bold text-s-grey-800 bg-s-dialog-action active:bg-s-dialog-action-pressed;
+  border: 0;
+  border-top: 0.8px solid #e8e8e8; /* Kit --s-dialog-action-border，介于 s-grey-200 与 s-grey-300 之间 */
+}
+
+/* 按钮之间 1px #f2f2f2（s-grey-200）竖线分隔 */
+.smt-dialog-action-btn + .smt-dialog-action-btn {
+  box-shadow: inset 1px 0 0 #f2f2f2;
+}
+
+.smt-dialog-action-btn[data-primary] {
+  @apply text-s-dialog-action-text;
+}
+
+.smt-dialog-action-btn[data-primary]:active {
+  border-top-color: #d5d5d5; /* Kit --s-dialog-action-border-pressed */
+}
+
+/* ---------- Date Time Picker（Kit 147:276，432×274 滚轮选择器） ---------- */
+.smt-picker {
+  width: 432px;
+  max-width: 100%;
+  height: 274px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 20px 20px 12px 12px; /* Kit 底部弹窗顶 20；居中浮窗底收 12 */
+  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Bottom Sheet Header（204:1173）：左 ×、右 ✓、标题绝对居中 */
+.smt-picker__header {
+  flex: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 13px;
+  background: linear-gradient(180deg, #ffffff, #fafafa); /* Kit --s-grad-sheet-header */
+  border-bottom: 1px solid #e2e2e2; /* s-border-list */
+}
+
+.smt-picker__title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: 700;
+  color: #656565; /* Kit --s-text-body */
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.smt-picker__icon {
+  @apply inline-flex cursor-pointer text-s-icon p-1.5 rounded-s-md active:text-s-grey-800;
+}
+
+/* Body：#ededed → #f1f1f1(14%) → #ededed（Kit --s-grad-picker-body） */
+.smt-picker__body {
+  flex: 1;
+  min-height: 0; /* flex 纵向：允许被 274px 总高约束，防止内容撑开 */
+  display: flex;
+  padding: 0 12px 18px;
+  background: linear-gradient(180deg, #ededed 0%, #f1f1f1 14%, #ededed 100%);
+}
+
+/* 滚轮井：1px #c6c6c8 描边 + 内凹（Kit --s-grad-picker-well / --s-inset-well） */
+.smt-picker__well {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid #c6c6c8;
+  border-radius: 6px; /* s-r-md */
+  background: linear-gradient(180deg, rgba(254, 254, 254, 0.405), #e2e2e3);
+}
+
+.smt-picker__well::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.18); /* s-inset-well */
+}
+
+/* 选中带：横贯井、高 44、垂直居中（(井高 208 − 44) / 2 = 82） */
+.smt-picker__band {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: 82px;
+  height: 44px;
+  background: linear-gradient(180deg, #ffffff 0%, rgba(245, 245, 245, 0.535) 53.5%, #f8f8f8 100%); /* Kit --s-grad-picker-band */
+  border: 1px solid #d9d9d9;
+  pointer-events: none;
+}
+
+/* 滚轮列：scroll-snap 吸附；行高 38 + 间距 16 = 节距 54（JS 的 SMT_PICKER.itemPitch 与此对应） */
+.smt-picker__col {
+  flex: 1;
+  position: relative; /* 让 span 的 offsetTop 相对列自身，供 JS 计算滚动位置 */
+  height: 100%;       /* flex 拉伸下 overflow-y:auto 需要显式定高才能产生滚动 */
+  min-height: 0;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  font-size: 16px;
+  text-align: center;
+  color: #b3b3b5; /* Kit 未选中项 */
+  border-right: 1px solid rgba(206, 206, 206, 0.4); /* Kit 列间竖线 */
+}
+
+.smt-picker__col:last-child {
+  border-right: 0;
+}
+
+.smt-picker__col::-webkit-scrollbar {
+  display: none;
+}
+
+/* 上下 spacer：(井高 208 − 行高 38) / 2 = 85，使首尾项也能吸附到选中带 */
+.smt-picker__col::before,
+.smt-picker__col::after {
+  content: "";
+  display: block;
+  height: 85px;
+}
+
+.smt-picker__col > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  margin-bottom: 16px;
+  scroll-snap-align: center;
+  cursor: pointer;
+}
+
+.smt-picker__col > span:last-child {
+  margin-bottom: 0;
+}
+
+.smt-picker__col > span[aria-selected="true"] {
+  color: #55585c; /* Kit 选中项 */
+}
+
+/* ============================================================
+   Material Symbols 图标（LoliNet 镜像加载，见 index.html <head>）
+   ============================================================ */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
 }

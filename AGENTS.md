@@ -16,6 +16,7 @@ Static scheduling app (能工智人排班系统): a 5-step wizard that generates
 - All UI text and code comments are Simplified Chinese (`lang="zh-CN"`); keep that convention.
 - Dates are keyed as local-time `YYYY-MM-DD` strings via `formatDate`/`parseDate` (used as Set/Map keys for holidays and makeup workdays). Don't introduce `toISOString()` — the UTC shift corrupts those keys.
 - 样式规则：UI 颜色、圆角、阴影等视觉规格一律使用标准 Tailwind 工具类（如 `bg-indigo-600`、`rounded-xl`），非必要不硬编码 HEX/px。仅 `generateStandaloneHtml` 的导出内联 CSS、scrollbar 伪元素等无法用工具类表达的少数位置例外（须注释标注对应 Tailwind 色值）。保留壳类（JS 动态引用的类名）内部用 `@apply` 引用标准工具类。
+- 图标规则：UI 中任何图标一律使用 **Material Symbols**（Material Design 图标），且**必须**通过 LoliNet 镜像源加载：将 Google Fonts 的 `fonts.googleapis.com` / `fonts.gstatic.com` 一律替换为 `fonts.loli.net` / `gstatic.loli.net`。禁止直接请求 fonts.googleapis.com 或使用其他镜像源——任何时候都必须使用 LoliNet 镜像源调用 icon。
 
 ## Gotchas
 
