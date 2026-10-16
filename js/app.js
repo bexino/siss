@@ -57,7 +57,7 @@ const I18N = {
     // 步骤 3
     startDateLabel: 'Start Date',
     nonWorkday: 'This date is ${w} (a non-workday). Scheduling will begin on the nearest workday or adjusted workday.',
-    workday: 'Start date is <span class="text-indigo-600 font-semibold">${w}</span> (a workday).',
+    workday: 'Start date is <span class="text-s-blue-400 font-semibold">${w}</span> (a workday).',
     // 步骤 4
     holidayTitle: 'Holidays',
     rangeTo: 'to',
@@ -120,7 +120,7 @@ const I18N = {
     executedBadge: 'Done', remainBadge: 'Remaining shift ${n}', dayNBadge: 'Day ${d}',
     errThroughEarly: 'The executed-through date cannot be earlier than the first imported day (${d}): at least 1 day must have been executed.',
     errThroughEarlyToast: 'Executed-through date is too early; at least 1 day must have been executed',
-    throughHint: 'Executed through <span class="text-indigo-600 font-semibold">${w}</span>;<br>shifts on and before this day will be ignored.',
+    throughHint: 'Executed through <span class="text-s-blue-400 font-semibold">${w}</span>;<br>shifts on and before this day will be ignored.',
     pickStartDate: 'New Start Date',
     genNewRoster: 'Generate New Schedule',
     errImportFirst: 'Please import the old roster first', errPickThrough: 'Please select the executed-through date first',
@@ -829,19 +829,19 @@ function handleStep1Inputs() {
     if (count >= daily) {
       const en = window.APP_LANG === 'en';
       elements.step1CycleHint.innerHTML = en
-        ? `Days needed: <span class="text-indigo-600 font-bold text-sm">${cycle.totalDays}</span> exactly;<br>
-        Shifts per person: <span class="text-indigo-600 font-bold text-sm">${cycle.shiftsPerPerson}</span>;<br>
-        Total shifts: <span class="text-indigo-600 font-bold text-sm">${cycle.totalShifts}</span>.`
+        ? `Days needed: <span class="text-s-blue-400 font-bold text-sm">${cycle.totalDays}</span> exactly;<br>
+        Shifts per person: <span class="text-s-blue-400 font-bold text-sm">${cycle.shiftsPerPerson}</span>;<br>
+        Total shifts: <span class="text-s-blue-400 font-bold text-sm">${cycle.totalShifts}</span>.`
         : `
-        需排班 <span class="text-indigo-600 font-bold text-sm">${cycle.totalDays}</span> 天整；<br>
-        每人值班 <span class="text-indigo-600 font-bold text-sm">${cycle.shiftsPerPerson}</span> 次；<br>
-        总计 <span class="text-indigo-600 font-bold text-sm">${cycle.totalShifts}</span> 班次。
+        需排班 <span class="text-s-blue-400 font-bold text-sm">${cycle.totalDays}</span> 天整；<br>
+        每人值班 <span class="text-s-blue-400 font-bold text-sm">${cycle.shiftsPerPerson}</span> 次；<br>
+        总计 <span class="text-s-blue-400 font-bold text-sm">${cycle.totalShifts}</span> 班次。
       `;
       hideError(elements.step1Error);
     } else {
       elements.step1CycleHint.innerHTML = window.APP_LANG === 'en'
-        ? `<span class="text-amber-600 font-medium">⚠️ Total people (${count}) is fewer than people per day (${daily}). Add more people or reduce the daily headcount.</span>`
-        : `<span class="text-amber-600 font-medium">⚠️ 总人数 (${count}人) 少于每日值班人数 (${daily}人)，请补充人员或调低每日人数。</span>`;
+        ? `<span class="text-s-chip-yellow-text font-medium">⚠️ Total people (${count}) is fewer than people per day (${daily}). Add more people or reduce the daily headcount.</span>`
+        : `<span class="text-s-chip-yellow-text font-medium">⚠️ 总人数 (${count}人) 少于每日值班人数 (${daily}人)，请补充人员或调低每日人数。</span>`;
     }
   } else {
     elements.step1CycleHint.textContent = t('waitTyping') || '等待键入...';
@@ -953,18 +953,18 @@ function renderStep2Preview() {
   // 1. 渲染按天轮替预览
   const daysHtml = dailyAssignments.map((dayGroup, idx) => {
     const namesChips = dayGroup.map(name =>
-      `<span class="inline-block bg-slate-100 text-slate-800 font-medium px-2.5 py-0.5 rounded-md text-xs border border-slate-200 mr-1.5 my-0.5">${name}</span>`
+      `<span class="inline-block bg-s-grey-100 text-s-grey-900 font-medium px-2.5 py-0.5 rounded-md text-xs border border-s-grey-400 mr-1.5 my-0.5">${name}</span>`
     ).join('');
 
     return `
-      <div class="px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+      <div class="px-4 py-2.5 flex items-center justify-between active:bg-s-grey-100">
         <div class="flex items-center space-x-3">
-          <span class="w-16 text-xs font-bold text-slate-400">${en ? `Day ${idx + 1}` : `第 ${idx + 1} 天`}</span>
+          <span class="w-16 text-xs font-bold text-s-grey-600">${en ? `Day ${idx + 1}` : `第 ${idx + 1} 天`}</span>
           <div class="flex flex-wrap items-center">
             ${namesChips}
           </div>
         </div>
-        <span class="text-xs text-slate-400 hidden sm:inline">${en ? `${dayGroup.length} ppl` : `${dayGroup.length}人`}</span>
+        <span class="text-xs text-s-grey-600 hidden sm:inline">${en ? `${dayGroup.length} ppl` : `${dayGroup.length}人`}</span>
       </div>
     `;
   }).join('');
@@ -984,17 +984,17 @@ function renderStep2Preview() {
 
   const peopleHtml = Object.keys(personShiftsMap).map((name, idx) => {
     const days = personShiftsMap[name];
-    const daysBadges = days.map(d => `<span class="inline-block bg-indigo-50 text-indigo-700 font-mono text-[11px] px-2 py-0.5 rounded border border-indigo-100 mr-1 my-0.5">${en ? `Day ${d}` : `第 ${d} 天`}</span>`).join('');
+    const daysBadges = days.map(d => `<span class="inline-block bg-s-blue-100 text-s-blue-400 font-mono text-[11px] px-2 py-0.5 rounded border border-s-chip-blue-border mr-1 my-0.5">${en ? `Day ${d}` : `第 ${d} 天`}</span>`).join('');
     return `
-      <div class="px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+      <div class="px-4 py-2.5 flex items-center justify-between active:bg-s-grey-100">
         <div class="flex items-center space-x-3 flex-1">
-          <span class="w-8 text-xs font-mono text-slate-400 text-right">${idx + 1}.</span>
-          <span class="font-bold text-xs sm:text-sm text-slate-800 w-24">${name}</span>
+          <span class="w-8 text-xs font-mono text-s-grey-600 text-right">${idx + 1}.</span>
+          <span class="font-bold text-xs sm:text-sm text-s-grey-900 w-24">${name}</span>
           <div class="flex flex-wrap items-center flex-1">
             ${daysBadges}
           </div>
         </div>
-        <span class="text-xs font-bold text-emerald-600 ml-2">${en ? `${days.length} shifts in total` : `共 ${days.length} 次`}</span>
+        <span class="text-xs font-bold text-s-blue-400 ml-2">${en ? `${days.length} shifts in total` : `共 ${days.length} 次`}</span>
       </div>
     `;
   }).join('');
@@ -1098,12 +1098,12 @@ function handleStartDateChange() {
   if (dayOfWeek === 0 || dayOfWeek === 6) {
     elements.startDateWeekdayTag.innerHTML = `
       ${en
-        ? `<span class="text-amber-600 font-bold">This date is ${weekday} (a non-workday)</span>. Scheduling will begin on the nearest workday or adjusted makeup workday.`
-        : `<span class="text-amber-600 font-bold">该日为 ${weekday}（非工作日）</span>，排班将从最近的工作日或调休补班日开始。`}
+        ? `<span class="text-s-chip-yellow-text font-bold">This date is ${weekday} (a non-workday)</span>. Scheduling will begin on the nearest workday or adjusted makeup workday.`
+        : `<span class="text-s-chip-yellow-text font-bold">该日为 ${weekday}（非工作日）</span>，排班将从最近的工作日或调休补班日开始。`}
     `;
   } else {
     elements.startDateWeekdayTag.innerHTML = `
-      ${en ? `Start date is <span class="text-indigo-600 font-semibold">${weekday}</span> (a workday).` : `起始日为 <span class="text-indigo-600 font-semibold">${weekday}</span>（工作日）。`}
+      ${en ? `Start date is <span class="text-s-blue-400 font-semibold">${weekday}</span> (a workday).` : `起始日为 <span class="text-s-blue-400 font-semibold">${weekday}</span>（工作日）。`}
     `;
   }
 }
@@ -1211,12 +1211,12 @@ function updateQuickDateState() {
   elements.calendarQuickDateState.textContent = quickState.message;
 
   const statusStyles = {
-    unselected: 'text-slate-500',
-    outside: 'text-slate-500',
-    'default-workday': 'text-[#3B82F6]',
-    weekend: 'text-[#6B7280]',
-    'manual-holiday': 'text-[#EF4444]',
-    'manual-workday': 'text-[#22C55E]'
+    unselected: 'text-s-grey-600',
+    outside: 'text-s-grey-600',
+    'default-workday': 'text-s-blue-400',
+    weekend: 'text-s-grey-600',
+    'manual-holiday': 'text-s-chip-red-text',
+    'manual-workday': 'text-s-chip-yellow-text'
   };
   elements.calendarQuickDateState.className = `text-xs font-semibold ${statusStyles[quickState.dateStatus]}`;
 
@@ -1330,43 +1330,43 @@ function buildCalendarCellHtml(dateStr, dayNum, isOtherMonth, datesMap, validRan
   const isManual = state.manualWorkdays.has(dateStr);
 
   let cellBgClass = '';
-  let borderClass = 'border-slate-200';
+  let borderClass = 'border-s-grey-400';
   let badgeHtml = '';
-  let textColor = isOtherMonth ? 'text-slate-300' : 'text-slate-700';
+  let textColor = isOtherMonth ? 'text-s-grey-500' : 'text-s-grey-800';
   let isColored = false;
   const isDateDisabled = isScheduleDateOutsideRange(dateStr, validRange);
 
   if (isDateDisabled) {
-    cellBgClass = 'bg-slate-50/60 cursor-not-allowed hover:bg-slate-50/60';
-    borderClass = 'border-slate-200/80';
+    cellBgClass = 'bg-s-grey-100 cursor-not-allowed';
+    borderClass = 'border-s-grey-400';
     badgeHtml = '';
-    textColor = isOtherMonth ? 'text-slate-300' : 'text-slate-400';
+    textColor = isOtherMonth ? 'text-s-grey-500' : 'text-s-grey-600';
   } else if (dayInfo && dayInfo.isWorkday) {
     if (isManual) {
-      cellBgClass = 'bg-[#22C55E] border-[#22C55E] hover:opacity-90';
+      cellBgClass = 'bg-s-chip-yellow-text border-s-chip-yellow-border active:opacity-90';
       badgeHtml = `<span class="text-[10px] font-bold text-white bg-white/25 px-1.5 py-0.5 rounded">${t('makeupShort') || '补'}</span>`;
       textColor = 'text-white font-bold';
       isColored = true;
     } else {
-      cellBgClass = 'bg-[#3B82F6] border-[#3B82F6] hover:opacity-90';
+      cellBgClass = 'bg-s-blue-300 border-s-blue-300 active:opacity-90';
       badgeHtml = `<span class="text-[10px] font-bold text-white bg-white/25 px-1.5 py-0.5 rounded">${t('setStateWorkday') || '班'}</span>`;
       textColor = 'text-white font-semibold';
       isColored = true;
     }
   } else if (isExcluded) {
-    cellBgClass = 'bg-[#EF4444] border-[#EF4444] hover:opacity-90';
+    cellBgClass = 'bg-s-chip-red-text border-s-chip-red-border active:opacity-90';
     badgeHtml = `<span class="text-[10px] font-bold text-white bg-white/25 px-1.5 py-0.5 rounded">${t('setStateHoliday') || '休'}</span>`;
     textColor = 'text-white line-through font-medium';
     isColored = true;
   } else if (isWeekend) {
-    cellBgClass = isOtherMonth ? 'bg-slate-50/50' : 'bg-[#6B7280] border-[#6B7280] hover:opacity-90';
+    cellBgClass = isOtherMonth ? 'bg-s-grey-100' : 'bg-s-icon-chevron border-s-icon-chevron active:opacity-90';
     badgeHtml = isOtherMonth ? '' : `<span class="text-[10px] font-bold text-white bg-white/25 px-1.5 py-0.5 rounded">${t('setStateHoliday') || '休'}</span>`;
-    textColor = isOtherMonth ? 'text-slate-300' : 'text-white';
+    textColor = isOtherMonth ? 'text-s-grey-500' : 'text-white';
     if (!isOtherMonth) isColored = true;
   } else {
-    cellBgClass = isOtherMonth ? 'bg-slate-50/50' : 'bg-white hover:bg-indigo-50/30';
+    cellBgClass = isOtherMonth ? 'bg-s-grey-100' : 'bg-white active:bg-s-blue-100/30';
     badgeHtml = '';
-    textColor = isOtherMonth ? 'text-slate-300' : 'text-slate-600';
+    textColor = isOtherMonth ? 'text-s-grey-500' : 'text-s-grey-800';
   }
 
   let titleTooltip = `${dateStr} (${weekdayName(dayOfWeek)})`;
@@ -1388,7 +1388,7 @@ function buildCalendarCellHtml(dateStr, dayNum, isOtherMonth, datesMap, validRan
         <span class="text-xs font-bold ${textColor}">${dayNum}</span>
         ${badgeHtml}
       </div>
-      <div class="text-[10px] text-right ${isColored ? 'text-white/70' : 'text-slate-400'} font-mono">
+      <div class="text-[10px] text-right ${isColored ? 'text-white/70' : 'text-s-grey-600'} font-mono">
         ${dateStr.slice(5)}
       </div>
     </div>
@@ -1443,9 +1443,9 @@ function renderExcludedAndManualTags() {
     const d = parseDate(dateStr);
     const wk = weekdayName(d.getDay());
     tagsHtml += `
-      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#EF4444] border border-[#EF4444] text-white text-xs font-mono shadow-2xs">
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-s-chip-red-bg0 border border-s-chip-red-border text-white text-xs font-mono shadow-s-card-sm">
         <span>🚫 ${dateStr} (${wk}) ${t('offTag') || '休'}</span>
-        <button type="button" onclick="removeHolidayTag('${dateStr}')" class="hover:text-white/80 font-bold ml-1 text-sm leading-none" title="${t('undoHoliday') || '撤销放假'}">✕</button>
+        <button type="button" onclick="removeHolidayTag('${dateStr}')" class="active:text-white/70 font-bold ml-1 text-sm leading-none" title="${t('undoHoliday') || '撤销放假'}">✕</button>
       </span>
     `;
   });
@@ -1455,9 +1455,9 @@ function renderExcludedAndManualTags() {
     const d = parseDate(dateStr);
     const wk = weekdayName(d.getDay());
     tagsHtml += `
-      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#22C55E] border border-[#22C55E] text-white text-xs font-mono shadow-2xs">
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-s-chip-yellow-bg border border-s-chip-yellow-border text-white text-xs font-mono shadow-s-card-sm">
         <span>✅ ${dateStr} (${wk}) ${t('makeupTag') || '补班'}</span>
-        <button type="button" onclick="removeManualWorkdayTag('${dateStr}')" class="hover:text-white/80 font-bold ml-1 text-sm leading-none" title="${t('undoMakeup') || '撤销补班'}">✕</button>
+        <button type="button" onclick="removeManualWorkdayTag('${dateStr}')" class="active:text-white/70 font-bold ml-1 text-sm leading-none" title="${t('undoMakeup') || '撤销补班'}">✕</button>
       </span>
     `;
   });
@@ -1574,8 +1574,8 @@ function renderFinalSchedule() {
 // 视图切换辅助函数
 function setScheduleView(viewMode) {
   state.visualSubView = viewMode;
-  const inactiveClass = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium transition-all';
-  const activeClass = 'px-2.5 py-1 rounded-md bg-white text-indigo-700 shadow-2xs font-bold transition-all';
+  const inactiveClass = 'px-2.5 py-1 rounded-s-sm text-s-grey-800 active:text-s-grey-900 font-medium';
+  const activeClass = 'px-2.5 py-1 rounded-s-sm bg-white text-s-blue-400 border-[0.8px] border-s-grey-400 font-bold';
   const isTextView = viewMode === 'text';
   const isCardsView = viewMode === 'cards';
   const els = getActiveViewEls();
@@ -1615,8 +1615,8 @@ function renderFilterableTable(query = '') {
   if (query) {
     els.btnClear.classList.remove('hidden');
     els.stats.innerHTML = window.APP_LANG === 'en'
-      ? `Found <b class="text-indigo-600 font-bold">${filteredItems.length}</b> days (matching “${query}”)`
-      : `共找到 <b class="text-indigo-600 font-bold">${filteredItems.length}</b> 天（匹配 “${query}”）`;
+      ? `Found <b class="text-s-blue-400 font-bold">${filteredItems.length}</b> days (matching “${query}”)`
+      : `共找到 <b class="text-s-blue-400 font-bold">${filteredItems.length}</b> 天（匹配 “${query}”）`;
   } else {
     els.btnClear.classList.add('hidden');
     els.stats.textContent = window.APP_LANG === 'en' ? `${scheduleItems.length} days in total` : `共 ${scheduleItems.length} 天`;
@@ -1644,18 +1644,18 @@ function renderFilterableTable(query = '') {
     const namesHtml = item.names.map(name => {
       const isMatch = query && name.toLowerCase().includes(normalizedQuery);
       const highlightedName = highlightMatch(name, normalizedQuery);
-      return `<span class="inline-block cursor-pointer px-2 py-0.5 rounded-md text-xs font-medium mr-1.5 my-0.5 border ${isMatch ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold' : 'bg-slate-100 border-slate-200 text-slate-800 hover:bg-indigo-50 hover:text-indigo-700'}" onclick="setTableSearch('${name}')" title="${t('filterThis') || '点击筛选此人排班'}">${highlightedName}</span>`;
+      return `<span class="inline-block cursor-pointer px-2 py-0.5 rounded-md text-xs font-medium mr-1.5 my-0.5 border ${isMatch ? 'bg-s-chip-yellow-bg border-s-chip-yellow-border text-s-chip-yellow-text font-bold' : 'bg-s-grey-100 border-s-grey-400 text-s-grey-900 active:bg-s-blue-100 active:text-s-blue-400'}" onclick="setTableSearch('${name}')" title="${t('filterThis') || '点击筛选此人排班'}">${highlightedName}</span>`;
     }).join(window.APP_LANG === 'en' ? ', ' : '，');
 
     const badge = item.isManualWorkday
-      ? '<span class="text-[10px] font-bold text-white bg-[#22C55E] px-1.5 py-0.5 rounded ml-1.5">' + (t('makeupShort') || '补') + '</span>'
+      ? '<span class="text-[10px] font-bold text-white bg-s-chip-yellow-bg px-1.5 py-0.5 rounded ml-1.5">' + (t('makeupShort') || '补') + '</span>'
       : '';
 
     return `
-      <tr class="hover:bg-indigo-50/30 transition-colors">
-        <td class="py-2.5 px-4 font-mono text-slate-400">${idx + 1}</td>
-        <td class="py-2.5 px-4 font-medium font-mono text-slate-900 flex items-center">${dateDisplay} ${badge}</td>
-        <td class="py-2.5 px-4 text-slate-600 font-medium">${weekdayDisplay}</td>
+      <tr class="active:bg-s-blue-100/30">
+        <td class="py-2.5 px-4 font-mono text-s-grey-600">${idx + 1}</td>
+        <td class="py-2.5 px-4 font-medium font-mono text-s-grey-900 flex items-center">${dateDisplay} ${badge}</td>
+        <td class="py-2.5 px-4 text-s-grey-800 font-medium">${weekdayDisplay}</td>
         <td class="py-2.5 px-4">${namesHtml}</td>
       </tr>
     `;
@@ -1670,22 +1670,22 @@ function renderFilterableTable(query = '') {
     const cardChipsHtml = item.names.map(name => {
       const isMatch = query && name.toLowerCase().includes(normalizedQuery);
       const highlightedName = highlightMatch(name, normalizedQuery);
-      return `<span class="mobile-person-chip inline-block cursor-pointer px-2.5 py-1 rounded-lg text-xs font-medium border ${isMatch ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold' : 'bg-slate-100 border-slate-200 text-slate-800 active:bg-indigo-100 active:text-indigo-800'}" onclick="setTableSearch('${name}')" title="${t('filterThis') || '点击筛选此人排班'}">${highlightedName}</span>`;
+      return `<span class="mobile-person-chip inline-block cursor-pointer px-2.5 py-1 rounded-lg text-xs font-medium border ${isMatch ? 'bg-s-chip-yellow-bg border-s-chip-yellow-border text-s-chip-yellow-text font-bold' : 'bg-s-grey-100 border-s-grey-400 text-s-grey-900 active:bg-s-blue-100 active:text-s-blue-400'}" onclick="setTableSearch('${name}')" title="${t('filterThis') || '点击筛选此人排班'}">${highlightedName}</span>`;
     }).join('');
 
     const badge = item.isManualWorkday
-      ? '<span class="text-[10px] font-bold text-white bg-[#22C55E] px-1.5 py-0.5 rounded ml-1">' + (t('makeupBadge') || '补班') + '</span>'
+      ? '<span class="text-[10px] font-bold text-white bg-s-chip-yellow-bg px-1.5 py-0.5 rounded ml-1">' + (t('makeupBadge') || '补班') + '</span>'
       : '';
 
     return `
-      <div class="schedule-card bg-white rounded-xl border border-slate-200 p-3 shadow-2xs">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+      <div class="schedule-card bg-white rounded-s-md border border-s-grey-400 p-3 shadow-s-card-sm">
+        <div class="flex items-center justify-between border-b border-s-grey-200 pb-2 mb-2">
           <div class="flex items-center space-x-2">
-            <span class="text-xs font-bold text-slate-400 font-mono bg-slate-100 px-1.5 py-0.5 rounded">${tf('dayNBadge', { d: idx + 1 }) || `第 ${idx + 1} 天`}</span>
-            <span class="text-xs sm:text-sm font-bold text-slate-900 font-mono">${dateDisplay}</span>
+            <span class="text-xs font-bold text-s-grey-600 font-mono bg-s-grey-100 px-1.5 py-0.5 rounded">${tf('dayNBadge', { d: idx + 1 }) || `第 ${idx + 1} 天`}</span>
+            <span class="text-xs sm:text-sm font-bold text-s-grey-900 font-mono">${dateDisplay}</span>
             ${badge}
           </div>
-          <span class="text-xs font-semibold ${isWeekendName(item.weekday) ? 'text-amber-600' : 'text-slate-600'}">${weekdayDisplay}</span>
+          <span class="text-xs font-semibold ${isWeekendName(item.weekday) ? 'text-s-chip-yellow-text' : 'text-s-grey-800'}">${weekdayDisplay}</span>
         </div>
         <div class="flex flex-wrap items-center gap-1.5">
           ${cardChipsHtml}
@@ -1780,9 +1780,11 @@ function generateStandaloneHtml(items, stats) {
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: #f8fafc;
-      color: #1e293b;
+      font-family: "Smartisan Compact", "Inter", -apple-system, BlinkMacSystemFont, "Noto Sans CJK SC",
+        "Source Han Sans SC", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+        "Helvetica Neue", Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333333;
       line-height: 1.5;
       padding: 16px 12px;
     }
@@ -1795,11 +1797,11 @@ function generateStandaloneHtml(items, stats) {
     }
     .header {
       background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
+      border: 0.8px solid #e2e2e2;
+      border-radius: 10px;
       padding: 16px;
       margin-bottom: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 10px 16px rgba(0,0,0,0.04);
     }
     @media (min-width: 640px) {
       .header { padding: 24px; margin-bottom: 24px; }
@@ -1814,15 +1816,15 @@ function generateStandaloneHtml(items, stats) {
     }
     .title {
       font-size: 20px;
-      font-weight: 800;
-      color: #0f172a;
+      font-weight: 700;
+      color: #636363;
     }
     @media (min-width: 640px) {
       .title { font-size: 24px; }
     }
     .subtitle {
       font-size: 12px;
-      color: #64748b;
+      color: #7f7f7f;
       margin-top: 2px;
     }
     .header-actions {
@@ -1832,38 +1834,39 @@ function generateStandaloneHtml(items, stats) {
       flex-wrap: wrap;
     }
     .btn-csv {
-      background: #2563eb;
-      color: #ffffff;
-      border: none;
+      background: linear-gradient(180deg, #ffffff, #fcfcfc);
+      color: #636363;
+      border: 0.8px solid #eeeeee;
       padding: 8px 14px;
       font-size: 12px;
       font-weight: 600;
-      border-radius: 10px;
+      border-radius: 6px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.2s;
+      font-family: inherit;
     }
-    .btn-csv:hover {
-      background: #1d4ed8;
+    .btn-csv:active {
+      background: linear-gradient(180deg, #ebebeb, #f2f2f2);
     }
     .btn-print {
-      background: #4f46e5;
+      background: linear-gradient(180deg, #5b87eb, #5883eb);
       color: #ffffff;
-      border: none;
+      border: 0.8px solid #3f68e2;
       padding: 8px 14px;
       font-size: 12px;
       font-weight: 600;
-      border-radius: 10px;
+      border-radius: 6px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.2s;
+      font-family: inherit;
     }
-    .btn-print:hover {
-      background: #4338ca;
+    .btn-print:active {
+      background: #4772e6;
+      border-color: #2f54d7;
     }
     .stats-grid {
       display: grid;
@@ -1874,36 +1877,38 @@ function generateStandaloneHtml(items, stats) {
       .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
     }
     .stat-card {
-      background: #f1f5f9;
+      background: #ffffff;
+      border: 0.8px solid #e2e2e2;
       border-radius: 10px;
       padding: 10px 12px;
       text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
     .stat-label {
       font-size: 11px;
-      color: #64748b;
+      color: #7f7f7f;
       font-weight: 500;
       margin-bottom: 2px;
     }
     .stat-value {
       font-size: 18px;
       font-weight: 800;
-      color: #0f172a;
+      color: #636363;
     }
     @media (min-width: 640px) {
       .stat-value { font-size: 20px; }
     }
     .table-container {
       background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
+      border: 0.8px solid #e2e2e2;
+      border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 10px 16px rgba(0,0,0,0.04);
     }
     .toolbar {
       padding: 12px 16px;
-      background: #f8fafc;
-      border-bottom: 1px solid #e2e8f0;
+      background: #fafafa;
+      border-bottom: 0.8px solid #e2e2e2;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -1919,23 +1924,25 @@ function generateStandaloneHtml(items, stats) {
     .search-input {
       width: 100%;
       padding: 8px 30px 8px 32px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
+      border: 0.8px solid #e2e2e2;
+      border-radius: 6px;
       font-size: 13px;
-      color: #1e293b;
+      color: #333333;
+      font-family: inherit;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: inset 0 4px 4px rgba(0,0,0,0.04);
+      transition: border-color 0.2s;
     }
+    .search-input::placeholder { color: #d9d9d9; }
     .search-input:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+      border-color: #93b2f7;
     }
     .search-icon {
       position: absolute;
       left: 10px;
       top: 50%;
       transform: translateY(-50%);
-      color: #94a3b8;
+      color: #929292;
       font-size: 13px;
       pointer-events: none;
     }
@@ -1946,13 +1953,14 @@ function generateStandaloneHtml(items, stats) {
       transform: translateY(-50%);
       background: none;
       border: none;
-      color: #94a3b8;
+      color: #929292;
       font-weight: bold;
       cursor: pointer;
       display: none;
       padding: 4px;
+      font-family: inherit;
     }
-    .btn-clear:hover { color: #475569; }
+    .btn-clear:active { color: #636363; }
     .toolbar-right {
       display: flex;
       align-items: center;
@@ -1960,29 +1968,31 @@ function generateStandaloneHtml(items, stats) {
     }
     .toolbar-info {
       font-size: 12px;
-      color: #64748b;
+      color: #636363;
     }
+    .toolbar-info b { color: #5079d9; }
+    /* Smartisan 分段 Tab：选中段内凹灰底白字 */
     .view-toggle {
       display: inline-flex;
-      background: #e2e8f0;
-      padding: 2px;
-      border-radius: 8px;
+      border: 0.4px solid #e2e2e2;
+      border-radius: 6px;
+      overflow: hidden;
     }
     .view-btn {
       border: none;
-      background: none;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      color: #475569;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .view-btn.active {
       background: #ffffff;
-      color: #4338ca;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #636363;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .view-btn + .view-btn { border-left: 0.4px solid #f2f2f2; }
+    .view-btn.active {
+      background: #b2b2b2;
+      color: #ffffff;
+      box-shadow: inset 0 4px 10px rgba(0,0,0,0.06), inset 0 0 0 0.4px #a7a7a7;
     }
     .copy-wrapper {
       position: absolute;
@@ -1992,9 +2002,9 @@ function generateStandaloneHtml(items, stats) {
     }
     .btn-copy {
       height: 36px;
-      border: none;
-      border-radius: 8px;
-      background: #4f46e5;
+      border: 0.8px solid #3f68e2;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #5b87eb, #5883eb);
       color: #ffffff;
       padding: 0 12px;
       font-size: 13px;
@@ -2003,15 +2013,17 @@ function generateStandaloneHtml(items, stats) {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 10px rgba(79,70,229,0.25);
-      transition: background 0.2s;
+      font-family: inherit;
     }
-    .btn-copy:hover { background: #4338ca; }
+    .btn-copy:active {
+      background: #4772e6;
+      border-color: #2f54d7;
+    }
     .markdown-wrapper {
       position: relative;
       overflow: visible;
-      background: #0f172a;
-      border-top: 1px solid #1e293b;
+      background: #333333;
+      border-top: 0.8px solid #e2e2e2;
       display: block;
     }
     .markdown-output {
@@ -2021,18 +2033,19 @@ function generateStandaloneHtml(items, stats) {
       min-height: 400px;
       padding: 44px 56px 16px 16px;
       background: transparent;
-      color: #e2e8f0;
+      color: #fafafa;
       border: none;
       outline: none;
       resize: none;
-      font-family: Consolas, "Courier New", monospace;
+      overflow: hidden;
+      font-family: Consolas, "Courier New", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", monospace, sans-serif;
       font-size: 13px;
       line-height: 1.65;
-      transition: box-shadow 0.2s, border-color 0.2s;
     }
     .markdown-output.copy-success {
-      box-shadow: inset 0 0 0 2px #10b981;
+      box-shadow: inset 0 0 0 2px #ccb08c;
     }
+    /* Smartisan Toast：暖黄渐变底 + 棕字 */
     .app-toast {
       position: fixed;
       top: 20px;
@@ -2042,14 +2055,14 @@ function generateStandaloneHtml(items, stats) {
       display: flex;
       align-items: center;
       gap: 8px;
-      border: 1px solid #1e293b;
-      border-radius: 12px;
-      background: #0f172a;
-      color: #ffffff;
+      border: 0.8px solid #d2b89c;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #fcf6e6, #fcf3dc);
+      color: #ad8a67;
       padding: 10px 16px;
       font-size: 13px;
       font-weight: 500;
-      box-shadow: 0 10px 15px -3px rgba(15,23,42,0.25), 0 4px 6px -4px rgba(15,23,42,0.25);
+      box-shadow: 0 4px 4px rgba(0,0,0,0.08);
       opacity: 0;
       transform: translate(-50%, -16px);
       transition: opacity 0.3s, transform 0.3s;
@@ -2061,23 +2074,23 @@ function generateStandaloneHtml(items, stats) {
     /* 卡片样式 */
     .cards-wrapper {
       padding: 12px;
-      background: #f8fafc;
+      background: #fafafa;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
     .card-item {
       background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
+      border: 0.8px solid #e2e2e2;
+      border-radius: 10px;
       padding: 12px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #f1f5f9;
+      border-bottom: 0.8px solid #f2f2f2;
       padding-bottom: 8px;
       margin-bottom: 8px;
     }
@@ -2089,22 +2102,23 @@ function generateStandaloneHtml(items, stats) {
     .card-day-num {
       font-size: 11px;
       font-weight: 700;
-      color: #64748b;
-      background: #f1f5f9;
+      color: #7f7f7f;
+      background: #fafafa;
+      border: 0.4px solid #e2e2e2;
       padding: 2px 6px;
       border-radius: 4px;
-      font-family: monospace;
+      font-family: Consolas, "Courier New", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", monospace, sans-serif;
     }
     .card-date-text {
       font-size: 13px;
       font-weight: 700;
-      color: #0f172a;
-      font-family: monospace;
+      color: #333333;
+      font-family: Consolas, "Courier New", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", monospace, sans-serif;
     }
     .card-weekday-text {
       font-size: 12px;
       font-weight: 600;
-      color: #475569;
+      color: #636363;
     }
     .card-chips {
       display: flex;
@@ -2113,26 +2127,27 @@ function generateStandaloneHtml(items, stats) {
     }
     .mobile-person-chip {
       display: inline-block;
-      background: #f1f5f9;
-      color: #334155;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 4px 10px;
+      background: #fafafa;
+      color: #646464;
+      border: 0.4px solid #cecece;
+      border-radius: 100px;
+      padding: 4px 12px;
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       user-select: none;
       touch-action: manipulation;
-      transition: all 0.15s;
+      font-family: inherit;
     }
     .mobile-person-chip:active {
-      background: #e0e7ff;
-      color: #3730a3;
+      background: linear-gradient(180deg, #e6efff, #e1ecff);
+      color: #6393ff;
+      border-color: #93b2f7;
     }
     .mobile-person-chip.active-match {
-      background: #fef08a;
-      color: #854d0e;
-      border-color: #fde047;
+      background: #fff5d9;
+      color: #cd9143;
+      border-color: #ccb08c;
       font-weight: 700;
     }
     /* 表格样式 */
@@ -2147,58 +2162,60 @@ function generateStandaloneHtml(items, stats) {
       min-width: 480px;
     }
     th {
-      background: #f8fafc;
-      color: #475569;
+      background: #fafafa;
+      color: #7f7f7f;
       font-weight: 600;
       padding: 10px 14px;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 0.8px solid #e2e2e2;
       position: sticky;
       top: 0;
       z-index: 5;
     }
     td {
       padding: 10px 14px;
-      border-bottom: 1px solid #f1f5f9;
+      border-bottom: 0.8px solid #f2f2f2;
       vertical-align: middle;
     }
     tr:nth-child(even) { background-color: #fafafa; }
-    tr:hover { background-color: #f1f5f9; }
+    tr:active { background-color: #fafafa; }
     .person-chip {
       display: inline-block;
-      background: #f1f5f9;
-      color: #334155;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
+      background: #fafafa;
+      color: #646464;
+      border: 0.4px solid #cecece;
+      border-radius: 4px;
       padding: 2px 8px;
       margin: 2px 4px 2px 0;
       font-weight: 500;
       font-size: 12px;
       cursor: pointer;
-      transition: all 0.15s;
+      font-family: inherit;
     }
-    .person-chip:hover {
-      background: #e0e7ff;
-      color: #3730a3;
-      border-color: #c7d2fe;
+    .person-chip:active {
+      background: linear-gradient(180deg, #e6efff, #e1ecff);
+      color: #6393ff;
+      border-color: #93b2f7;
     }
     .person-chip.active-match {
-      background: #fef08a;
-      color: #854d0e;
-      border-color: #fde047;
+      background: #fff5d9;
+      color: #cd9143;
+      border-color: #ccb08c;
       font-weight: 700;
     }
+    /* 补班徽章：Chip 黄 */
     .badge-makeup {
       font-size: 10px;
       font-weight: 700;
-      color: #ffffff;
-      background: #22C55E;
+      color: #cd9143;
+      background: #fff5d9;
+      border: 0.4px solid #ccb08c;
       padding: 2px 6px;
       border-radius: 4px;
       margin-left: 6px;
     }
     mark.highlight {
-      background-color: #fef08a;
-      color: #854d0e;
+      background-color: #fff5d9;
+      color: #cd9143;
       padding: 1px 3px;
       border-radius: 3px;
       font-weight: 700;
@@ -2206,13 +2223,13 @@ function generateStandaloneHtml(items, stats) {
     .empty-state {
       padding: 48px 16px;
       text-align: center;
-      color: #94a3b8;
+      color: #9d9d9d;
       font-size: 14px;
       display: none;
     }
     .site-footer {
       margin-top: 24px;
-      border-top: 1px solid #e2e8f0;
+      border-top: 0.8px solid #e2e2e2;
       background-color: #ffffff;
       padding: 12px 12px;
       text-align: center;
@@ -2227,7 +2244,7 @@ function generateStandaloneHtml(items, stats) {
       gap: 8px;
       font-size: 13px;
       line-height: 1.5;
-      color: #475569;
+      color: #636363;
     }
     .site-footer-content p {
       margin: 0;
@@ -2246,15 +2263,8 @@ function generateStandaloneHtml(items, stats) {
       gap: 8px;
     }
     .site-footer-content a {
-      color: #4f46e5;
+      color: #5079d9;
       text-decoration: none;
-    }
-    .site-footer-content img {
-      height: 20px;
-      width: auto;
-      max-width: 100%;
-      display: inline-block;
-      vertical-align: middle;
     }
     .hidden { display: none !important; }
     @media print {
@@ -2262,8 +2272,8 @@ function generateStandaloneHtml(items, stats) {
       .header { border: none; box-shadow: none; padding: 0 0 16px 0; }
       .btn-print, .btn-csv, .header-actions, .toolbar, .cards-wrapper, .view-toggle, .markdown-wrapper { display: none !important; }
       .table-wrapper { display: block !important; max-height: none; overflow: visible; }
-      .table-container { border: 1px solid #000000; box-shadow: none; }
-      th, td { border-bottom: 1px solid #cccccc; }
+      .table-container { border: 0.8px solid #cccccc; box-shadow: none; }
+      th, td { border-bottom: 0.8px solid #cccccc; }
     }
   </style>
 </head>
@@ -2469,9 +2479,9 @@ function generateStandaloneHtml(items, stats) {
         }).join(L('，', ', '));
 
         tableHtml += '<tr>' +
-          '<td style="color: #94a3b8; font-family: monospace;">' + (idx + 1) + '</td>' +
-          '<td style="font-weight: 600; font-family: monospace;">' + highlight(item.dateStr, query) + makeupBadge + '</td>' +
-          '<td style="color: #475569;">' + highlight(item.weekday, query) + '</td>' +
+          '<td style="color: #9d9d9d; font-family: Consolas, \\\'Microsoft YaHei\\\', \\\'PingFang SC\\\', \\\'Noto Sans SC\\\', monospace, sans-serif;">' + (idx + 1) + '</td>' +
+          '<td style="color: #333333; font-weight: 600; font-family: Consolas, \\\'Microsoft YaHei\\\', \\\'PingFang SC\\\', \\\'Noto Sans SC\\\', monospace, sans-serif;">' + highlight(item.dateStr, query) + makeupBadge + '</td>' +
+          '<td style="color: #7f7f7f;">' + highlight(item.weekday, query) + '</td>' +
           '<td>' + tableNamesHtml + '</td>' +
         '</tr>';
 
@@ -2591,6 +2601,20 @@ function generateStandaloneHtml(items, stats) {
     setViewMode(currentView);
     render('');
     markdownOutput.value = markdownText;
+
+    // 文本视图不使用 textarea 内部滚动条：随内容完全展开，由网页滚动条滚动
+    function autosizeMarkdownOutput() {
+      markdownOutput.style.height = 'auto';
+      markdownOutput.style.height = markdownOutput.scrollHeight + 'px';
+    }
+    markdownOutput.addEventListener('input', autosizeMarkdownOutput);
+    // 初次及每次切入文本视图时同步高度（容器隐藏时 scrollHeight 不准）
+    var _origSetViewMode = setViewMode;
+    setViewMode = function(mode) {
+      _origSetViewMode(mode);
+      if (mode === 'text') requestAnimationFrame(autosizeMarkdownOutput);
+    };
+    requestAnimationFrame(autosizeMarkdownOutput);
 
     var footerContent = document.getElementById('footerContent');
     if (footerContent) footerContent.innerHTML = ${JSON.stringify(footerHtml)};
@@ -2822,12 +2846,12 @@ function renderEditImportedCards() {
   if (edit.executedThrough) {
     elements.editStatRemaining.innerHTML = `
       ${window.APP_LANG === 'en'
-        ? `Imported <b class="text-indigo-600">${total}</b> days in total;<br>
-      Executed <b class="text-slate-500">${executedCount}</b> days;<br>
-      <b class="text-emerald-600">${remaining}</b> days remain to be re-scheduled.`
-        : `导入原 <b class="text-indigo-600">${total}</b> 天；<br>
-      已执行 <b class="text-slate-500">${executedCount}</b> 天；<br>
-      剩余 <b class="text-emerald-600">${remaining}</b> 天待编排。`}
+        ? `Imported <b class="text-s-blue-400">${total}</b> days in total;<br>
+      Executed <b class="text-s-grey-600">${executedCount}</b> days;<br>
+      <b class="text-s-blue-400">${remaining}</b> days remain to be re-scheduled.`
+        : `导入原 <b class="text-s-blue-400">${total}</b> 天；<br>
+      已执行 <b class="text-s-grey-600">${executedCount}</b> 天；<br>
+      剩余 <b class="text-s-blue-400">${remaining}</b> 天待编排。`}
     `;
   } else {
     elements.editStatRemaining.textContent = `共 ${total} 天 · 请选择已执行截止日期`;
@@ -2836,24 +2860,24 @@ function renderEditImportedCards() {
   elements.editImportedCardsContainer.innerHTML = edit.importedItems.map((item, idx) => {
     const isExecuted = edit.executedThrough && item.dateStr <= edit.executedThrough;
     const executedBadge = isExecuted
-      ? `<span class="text-[10px] font-bold text-slate-500 bg-slate-200 px-1.5 py-0.5 rounded">${t('executedBadge') || '已执行'}</span>`
-      : `<span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">${tf('remainBadge', { n: idx - executedCount + 1 }) || `剩余 第 ${idx - executedCount + 1} 班`}</span>`;
-    const cardClass = isExecuted ? 'opacity-50 bg-slate-50' : 'bg-white';
-    const weekdayColor = isWeekendName(item.weekday) ? 'text-amber-600' : 'text-slate-600';
+      ? `<span class="text-[10px] font-bold text-s-grey-600 bg-s-grey-200 px-1.5 py-0.5 rounded">${t('executedBadge') || '已执行'}</span>`
+      : `<span class="text-[10px] font-bold text-s-chip-yellow-text bg-s-chip-yellow-bg px-1.5 py-0.5 rounded">${tf('remainBadge', { n: idx - executedCount + 1 }) || `剩余 第 ${idx - executedCount + 1} 班`}</span>`;
+    const cardClass = isExecuted ? 'opacity-50 bg-s-grey-100' : 'bg-white';
+    const weekdayColor = isWeekendName(item.weekday) ? 'text-s-chip-yellow-text' : 'text-s-grey-800';
 
     return `
-      <div class="schedule-card rounded-xl border border-slate-200 p-3 shadow-2xs ${cardClass}">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+      <div class="schedule-card rounded-s-md border border-s-grey-400 p-3 shadow-s-card-sm ${cardClass}">
+        <div class="flex items-center justify-between border-b border-s-grey-200 pb-2 mb-2">
           <div class="flex items-center space-x-2">
-            <span class="text-xs font-bold text-slate-400 font-mono bg-slate-100 px-1.5 py-0.5 rounded">${tf('dayNBadge', { d: idx + 1 }) || `第 ${idx + 1} 天`}</span>
-            <span class="text-xs sm:text-sm font-bold text-slate-900 font-mono">${item.dateStr}</span>
+            <span class="text-xs font-bold text-s-grey-600 font-mono bg-s-grey-100 px-1.5 py-0.5 rounded">${tf('dayNBadge', { d: idx + 1 }) || `第 ${idx + 1} 天`}</span>
+            <span class="text-xs sm:text-sm font-bold text-s-grey-900 font-mono">${item.dateStr}</span>
             ${executedBadge}
           </div>
           <span class="text-xs font-semibold ${weekdayColor}">${item.weekday}</span>
         </div>
         <div class="flex flex-wrap items-center gap-1.5">
           ${item.names.map(name =>
-            `<span class="inline-block px-2.5 py-1 rounded-lg text-xs font-medium border bg-slate-100 border-slate-200 text-slate-800">${name}</span>`
+            `<span class="inline-block px-2.5 py-1 rounded-lg text-xs font-medium border bg-s-grey-100 border-s-grey-400 text-s-grey-900">${name}</span>`
           ).join('')}
         </div>
       </div>
@@ -2889,8 +2913,8 @@ function handleEditExecutedThroughChange() {
   const date = parseDate(val);
   elements.editExecutedWeekdayTag.innerHTML =
     window.APP_LANG === 'en'
-    ? `Executed through <span class="text-indigo-600 font-semibold">${weekdayName(date.getDay())}</span>;<br>shifts on and before this day will be ignored.`
-    : `已执行截止日为 <span class="text-indigo-600 font-semibold">${weekdayName(date.getDay())}</span>，<br>该天及之前的班次将被忽略。`;
+    ? `Executed through <span class="text-s-blue-400 font-semibold">${weekdayName(date.getDay())}</span>;<br>shifts on and before this day will be ignored.`
+    : `已执行截止日为 <span class="text-s-blue-400 font-semibold">${weekdayName(date.getDay())}</span>，<br>该天及之前的班次将被忽略。`;
 
   // 字符串比较对 YYYY-MM-DD 即为时间顺序
   state.editOld.remainingItems = state.editOld.importedItems.filter(item => item.dateStr > val);
@@ -2909,12 +2933,12 @@ function handleEditNewStartDateChange() {
   if (dayOfWeek === 0 || dayOfWeek === 6) {
     elements.editNewWeekdayTag.innerHTML = `
       ${en
-        ? `<span class="text-amber-600 font-bold">This date is ${weekday} (a non-workday)</span>. Scheduling will begin on the nearest workday or adjusted makeup workday.`
-        : `<span class="text-amber-600 font-bold">该日为 ${weekday}（非工作日）</span>，排班将从最近的工作日或调休补班日开始。`}
+        ? `<span class="text-s-chip-yellow-text font-bold">This date is ${weekday} (a non-workday)</span>. Scheduling will begin on the nearest workday or adjusted makeup workday.`
+        : `<span class="text-s-chip-yellow-text font-bold">该日为 ${weekday}（非工作日）</span>，排班将从最近的工作日或调休补班日开始。`}
     `;
   } else {
     elements.editNewWeekdayTag.innerHTML = `
-      ${en ? `Start date is <span class="text-indigo-600 font-semibold">${weekday}</span> (a workday).` : `起始日为 <span class="text-indigo-600 font-semibold">${weekday}</span>（工作日）。`}
+      ${en ? `Start date is <span class="text-s-blue-400 font-semibold">${weekday}</span> (a workday).` : `起始日为 <span class="text-s-blue-400 font-semibold">${weekday}</span>（工作日）。`}
     `;
   }
 
@@ -2989,9 +3013,9 @@ function renderEditExcludedAndManualTags() {
     const d = parseDate(dateStr);
     const wk = weekdayName(d.getDay());
     tagsHtml += `
-      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#EF4444] border border-[#EF4444] text-white text-xs font-mono shadow-2xs">
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-s-chip-red-bg0 border border-s-chip-red-border text-white text-xs font-mono shadow-s-card-sm">
         <span>🚫 ${dateStr} (${wk}) ${t('offTag') || '休'}</span>
-        <button type="button" onclick="removeHolidayTag('${dateStr}')" class="hover:text-white/80 font-bold ml-1 text-sm leading-none" title="${t('undoHoliday') || '撤销放假'}">✕</button>
+        <button type="button" onclick="removeHolidayTag('${dateStr}')" class="active:text-white/70 font-bold ml-1 text-sm leading-none" title="${t('undoHoliday') || '撤销放假'}">✕</button>
       </span>
     `;
   });
@@ -2999,9 +3023,9 @@ function renderEditExcludedAndManualTags() {
     const d = parseDate(dateStr);
     const wk = weekdayName(d.getDay());
     tagsHtml += `
-      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#22C55E] border border-[#22C55E] text-white text-xs font-mono shadow-2xs">
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-s-chip-yellow-bg border border-s-chip-yellow-border text-white text-xs font-mono shadow-s-card-sm">
         <span>✅ ${dateStr} (${wk}) ${t('makeupTag') || '补班'}</span>
-        <button type="button" onclick="removeManualWorkdayTag('${dateStr}')" class="hover:text-white/80 font-bold ml-1 text-sm leading-none" title="${t('undoMakeup') || '撤销补班'}">✕</button>
+        <button type="button" onclick="removeManualWorkdayTag('${dateStr}')" class="active:text-white/70 font-bold ml-1 text-sm leading-none" title="${t('undoMakeup') || '撤销补班'}">✕</button>
       </span>
     `;
   });
@@ -3063,15 +3087,15 @@ function setupEventListeners() {
 
   // Step 2: 标签切换与重新打乱
   elements.tabStep2Days.addEventListener('click', () => {
-    elements.tabStep2Days.className = 'px-3 py-1 rounded-md font-semibold bg-white text-indigo-600 shadow-xs border border-slate-200';
-    elements.tabStep2People.className = 'px-3 py-1 rounded-md font-semibold text-slate-600 hover:text-slate-900';
+    elements.tabStep2Days.className = 'px-3 py-1 rounded-md font-semibold bg-white text-s-blue-400 shadow-xs border border-s-grey-400';
+    elements.tabStep2People.className = 'px-3 py-1 rounded-s-sm font-semibold text-s-grey-800 active:text-s-grey-900';
     elements.schedulePreviewList.classList.remove('hidden');
     elements.schedulePersonStatsList.classList.add('hidden');
   });
 
   elements.tabStep2People.addEventListener('click', () => {
-    elements.tabStep2People.className = 'px-3 py-1 rounded-md font-semibold bg-white text-indigo-600 shadow-xs border border-slate-200';
-    elements.tabStep2Days.className = 'px-3 py-1 rounded-md font-semibold text-slate-600 hover:text-slate-900';
+    elements.tabStep2People.className = 'px-3 py-1 rounded-md font-semibold bg-white text-s-blue-400 shadow-xs border border-s-grey-400';
+    elements.tabStep2Days.className = 'px-3 py-1 rounded-s-sm font-semibold text-s-grey-800 active:text-s-grey-900';
     elements.schedulePersonStatsList.classList.remove('hidden');
     elements.schedulePreviewList.classList.add('hidden');
   });

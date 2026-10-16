@@ -1,3 +1,101 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Smartisan OS UI 设计语言 token（来自 smartisan-ui skill 的
+   Figma Kit / R2 真机实测值，经 tailwind.preset.js 移植为 v4 @theme）
+   ============================================================ */
+@theme {
+  /* 等宽字体（font-mono）中文回退：优先系统非衬线黑体，绝不回退宋体 */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Cascadia Mono",
+    "Microsoft YaHei", "PingFang SC", "Noto Sans SC", monospace, sans-serif;
+
+  /* Smartisan 字体栈（真机：Smartisan Compact + Noto Sans CJK SC） */
+  --font-sans: "Smartisan Compact", "Inter", ui-sans-serif, system-ui, -apple-system, "BlinkMacSystemFont",
+    "Noto Sans CJK SC", "Source Han Sans SC", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+
+  /* ---------- Grey/* ---------- */
+  --color-s-white: #ffffff;
+  --color-s-grey-100: #fafafa;   /* 容器底 */
+  --color-s-grey-200: #f2f2f2;   /* 分隔线 */
+  --color-s-grey-300: #eeeeee;   /* 按钮描边 */
+  --color-s-grey-400: #e2e2e2;   /* 列表/卡片描边 */
+  --color-s-grey-500: #bababa;   /* 禁用 */
+  --color-s-grey-600: #9d9d9d;   /* 副标题 */
+  --color-s-grey-700: #7f7f7f;   /* 副标题/分组标题 */
+  --color-s-grey-800: #636363;   /* 标题/按钮文字 */
+  --color-s-grey-900: #333333;   /* 正文（不用纯黑） */
+
+  /* ---------- Blue/*（唯一强调色） ---------- */
+  --color-s-blue-100: #e7edfd;
+  --color-s-blue-300: #5985eb;   /* 按下的列表行 */
+  --color-s-blue-400: #5079d9;   /* 文字按钮/链接 */
+  --color-s-blue-500: #3f68e2;   /* 主按钮描边 */
+  --color-s-blue-600: #2f54d7;   /* 按下描边 */
+  --color-s-blue-pressed: #4772e6;
+
+  /* ---------- 语义色 ---------- */
+  --color-s-page: #f5f5f5;
+  --color-s-dialog-action: #f7f7f7;
+  --color-s-dialog-action-pressed: #dfdfdf;
+  --color-s-dialog-action-text: #5e80d0;
+  --color-s-toast-top: #fcf6e6;
+  --color-s-toast-bottom: #fcf3dc;
+  --color-s-toast-border: #d2b89c;
+  --color-s-toast-text: #ad8a67;
+  --color-s-icon: #929292;
+  --color-s-icon-chevron: #b2b2b2;
+  --color-s-icon-disabled: #c7c7c7;
+  --color-s-placeholder: #d9d9d9;
+
+  /* ---------- Chip 五色 ---------- */
+  --color-s-chip-white-bg: #fafafa;
+  --color-s-chip-white-border: #cecece;
+  --color-s-chip-white-text: #646464;
+  --color-s-chip-yellow-bg: #fff5d9;
+  --color-s-chip-yellow-border: #ccb08c;
+  --color-s-chip-yellow-text: #cd9143;
+  --color-s-chip-blue-border: #93b2f7;
+  --color-s-chip-blue-text: #6393ff;
+  --color-s-chip-red-bg: #ffe7e5;
+  --color-s-chip-red-border: #eb7f77;
+  --color-s-chip-red-text: #cc3e39;
+  --color-s-chip-grey-bg: #f0f0f0;
+  --color-s-chip-grey-border: #dadada;
+
+  /* ---------- 圆角（Kit 规格） ---------- */
+  --radius-s-segment: 3px;
+  --radius-s-sm: 4px;
+  --radius-s-md: 6px;
+  --radius-s-sheet-btn: 8px;
+  --radius-s-lg: 10px;
+  --radius-s-dialog: 12px;
+  --radius-s-sheet: 20px;
+
+  /* ---------- 阴影（透明度基本 ≤0.1） ---------- */
+  --shadow-s-card: 0 10px 16px rgba(0, 0, 0, 0.04);
+  --shadow-s-card-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
+  --shadow-s-bar: 0 4px 4px rgba(0, 0, 0, 0.08);
+  --shadow-s-inset-track: inset 0 4px 4px rgba(0, 0, 0, 0.06);
+  --shadow-s-inset-field: inset 0 4px 4px rgba(0, 0, 0, 0.04);
+  --shadow-s-inset-tab: inset 0 4px 10px rgba(0, 0, 0, 0.06);
+  --shadow-s-inset-well: inset 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+/* ---------- Smartisan 渐变（同色系 2–5% 明度差的光照感） ---------- */
+@utility bg-s-primary {
+  background-image: linear-gradient(180deg, #5b87eb, #5883eb);
+}
+@utility bg-s-grad-white {
+  background-image: linear-gradient(180deg, #ffffff, #fcfcfc);
+}
+@utility bg-s-grad-white-pressed {
+  background-image: linear-gradient(180deg, #ebebeb, #f2f2f2);
+}
+@utility bg-s-grad-toast {
+  background-image: linear-gradient(180deg, #fcf6e6, #fcf3dc);
+}
+
 /* Geist 可变字体（本地缓存，字重 100-900 连续可调，仅覆盖英文字符） */
 @font-face {
   font-family: 'Geist';
@@ -8,206 +106,65 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* 全站字体：英文用 Geist，中文回退到系统字体 */
-:root {
-  --font-sans: 'Geist', ui-sans-serif, system-ui, 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
-}
-
+/* 全站字体：英文用 Geist，中文回退到系统字体（Smartisan Compact 装机时优先） */
 body {
-  font-family: 'Geist', ui-sans-serif, system-ui, 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
+  font-family: 'Geist', "Smartisan Compact", "Inter", ui-sans-serif, system-ui, 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
 }
 
-/* 自定义样式补充 */
+/* ============================================================
+   保留壳类：JS 动态引用类名，内部用 @apply 引用标准工具类
+   ============================================================ */
 
-/* 标题：主题紫色 */
-.pride-title {
-  color: #7c3aed;
-}
-
-/* 细滚动条 */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Toast 动画 */
-.toast-enter {
-  transform: translateY(-20px);
-  opacity: 0;
-}
-.toast-enter-active {
-  transform: translateY(0);
-  opacity: 1;
-  transition: all 0.25s ease-out;
-}
-
-/* 步骤标题导览控件 */
+/* 步骤标题导览按钮（JS 用 closest('.step-title-button') 引用） */
 .step-title-button {
-  display: inline-flex;
-  width: max-content;
-  max-width: none;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 0.75rem;
-  padding: 0.375rem 0.625rem;
-  margin: -0.375rem -0.625rem;
-  border: 0;
-  border-radius: 0.75rem;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  text-align: left;
-  transition: background-color 0.15s ease;
-}
-
-.step-title-button:hover,
-.step-title-button:focus-visible {
-  background-color: #f1f5f9;
-  outline: none;
-}
-
-.step-title-button:focus-visible {
-  box-shadow: 0 0 0 2px #a5b4fc;
-}
-
-.step-title-button {
-  border: 1px solid #c7d2fe;
-  border-radius: 9999px;
-  background-color: #eef2ff;
-}
-
-.step-title-button:hover,
-.step-title-button:focus-visible {
-  background-color: #e0e7ff;
+  @apply inline-flex w-max max-w-none items-center flex-nowrap gap-3 py-1.5 px-2.5 -my-1.5 -mx-2.5 rounded-full border-[0.8px] border-s-grey-400 bg-white text-left cursor-pointer active:bg-s-grey-200 focus-visible:bg-s-grey-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-s-chip-blue-border;
 }
 
 .step-title-number {
-  flex-shrink: 0;
-  display: inline-flex;
-  min-width: 1.75rem;
-  height: 1.75rem;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.375rem;
-  border-radius: 9999px;
-  background-color: #4f46e5;
-  color: #ffffff;
-  font-size: 0.875rem;
-  line-height: 1.25;
-  font-weight: 600;
+  @apply shrink-0 inline-flex min-w-7 h-7 items-center justify-center px-1.5 rounded-full bg-s-primary border-[0.8px] border-s-blue-500 text-white text-sm leading-tight font-semibold;
 }
 
 .step-title-text {
-  flex: none;
-  min-width: max-content;
-  white-space: nowrap;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
+  @apply flex-none min-w-max whitespace-nowrap text-xl font-bold text-s-grey-800;
 }
 
+/* 步骤导览菜单（JS 动态生成 item 并用 closest 引用） */
 .step-menu {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background-color: rgba(15, 23, 42, 0.45);
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45;
 }
 
+/* hidden 属性 / hidden 类需覆盖上面的 @apply flex（未分层样式优先于 Tailwind
+   工具层，.hidden 单独声明会输给 .step-menu 的 flex，故必须在此显式覆盖） */
 .step-menu[hidden],
 .step-menu.hidden {
   display: none;
 }
 
 .step-menu-list {
-  min-width: min(20rem, 100%);
-  max-width: 100%;
-  max-height: min(70vh, 480px);
-  overflow-y: auto;
-  padding: 0.375rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  background-color: #ffffff;
-  box-shadow: 0 20px 25px -5px rgb(15 23 42 / 0.12), 0 8px 10px -6px rgb(15 23 42 / 0.1);
+  @apply min-w-80 max-w-full max-h-[min(70vh,480px)] overflow-y-auto p-1.5 border-[0.8px] border-s-grey-400 rounded-s-dialog bg-white shadow-s-card;
 }
 
 .step-menu-item {
-  width: 100%;
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.625rem;
-  border: 0;
-  border-radius: 0.625rem;
-  background: transparent;
-  color: #334155;
-  cursor: pointer;
-  white-space: nowrap;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  text-align: left;
-  transition: background-color 0.15s ease;
-}
-
-.step-menu-item:hover,
-.step-menu-item:focus-visible {
-  background-color: #f1f5f9;
-  outline: none;
+  @apply w-full flex flex-nowrap items-center gap-2.5 p-2.5 rounded-s-md text-s-grey-800 cursor-pointer whitespace-nowrap text-[0.8125rem] font-medium text-left active:bg-s-grey-200 focus-visible:bg-s-grey-200 focus-visible:outline-none;
 }
 
 .step-menu-item.is-current {
-  background-color: #4f46e5;
-  color: #ffffff;
-  font-weight: 700;
+  @apply bg-s-blue-300 text-white font-bold;
 }
 
 .step-menu-number {
-  flex-shrink: 0;
-  min-width: 2.25rem;
-  padding: 0.25rem 0.25rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 9999px;
-  background-color: #ffffff;
-  color: #64748b;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-align: center;
+  @apply shrink-0 min-w-9 py-1 px-1 border-[0.8px] border-s-grey-400 rounded-full bg-s-grey-100 text-s-grey-600 text-[0.6875rem] font-bold text-center;
 }
 
 .step-menu-item.is-current .step-menu-number {
-  border-color: #ffffff;
-  background-color: #4338ca;
-  color: #ffffff;
+  @apply border-white bg-s-blue-500 text-white;
 }
 
-/* 优雅的表格斑马纹 */
-.zebra-table tbody tr:nth-child(even) {
-  background-color: #f8fafc;
-}
-
-/* 日历单元格样式 */
+/* 日历单元格（JS 模板拼接，保留壳类） */
 .calendar-cell {
-  min-height: 80px;
-  transition: all 0.15s ease;
+  @apply min-h-20 active:bg-s-grey-200;
 }
+
 @media (max-width: 640px) {
   .calendar-cell {
     min-height: 52px;
@@ -215,108 +172,61 @@ body {
   }
 }
 
-.calendar-cell:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-}
-
-/* 搜索高亮 */
+/* 搜索高亮（highlight() 生成 <mark class="search-highlight">）
+   Smartisan Chip 黄配色 */
 mark.search-highlight {
-  background-color: #fef08a;
-  color: #854d0e;
-  padding: 1px 4px;
-  border-radius: 4px;
-  font-weight: 700;
+  @apply bg-s-chip-yellow-bg text-s-chip-yellow-text px-1 py-px rounded-s-sm font-bold;
 }
 
-/* 移动端排班卡片样式 */
+/* 移动端排班卡片（JS 用 closest 引用） */
 .schedule-card {
-  transition: all 0.15s ease;
-}
-.schedule-card:active {
-  transform: scale(0.99);
+  @apply active:bg-s-grey-100;
 }
 
-/* 人员药丸标签触摸优化 */
+/* 人员药丸标签（JS 用 closest 引用） */
 .mobile-person-chip {
-  touch-action: manipulation;
-  user-select: none;
+  @apply touch-manipulation select-none;
 }
 
-/* 网站页脚 */
-.site-footer {
-  margin-top: auto;
-  border-top: none;
-  background-color: transparent;
-  padding: 0.75rem 1rem;
+/* .active-match 高亮态（Smartisan Chip 黄配色） */
+.mobile-person-chip.active-match {
+  @apply bg-s-chip-yellow-bg border-s-chip-yellow-border text-s-chip-yellow-text font-bold;
 }
 
-.site-footer-content {
-  max-width: 80rem;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: #475569;
-  text-align: center;
+/* ============================================================
+   无法用工具类表达、保留原样 CSS 的例外（按 AGENTS.md 约束注释
+   标注对应 Smartisan token 色值）
+   ============================================================ */
+
+/* 细滚动条（伪元素无法用工具类表达）
+   色值对应：s-grey-100 / s-grey-400 / s-grey-600 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.site-footer-content > div,
-.site-footer-content p,
-.site-footer-content ul,
-.site-footer-content ol {
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+::-webkit-scrollbar-track {
+  background: #fafafa; /* s-grey-100 */
+  border-radius: 4px;
 }
 
-.site-footer-content .site-footer-line {
-  flex-basis: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+::-webkit-scrollbar-thumb {
+  background: #e2e2e2; /* s-grey-400 */
+  border-radius: 4px;
 }
 
-.site-footer-content h1,
-.site-footer-content h2,
-.site-footer-content h3,
-.site-footer-content h4,
-.site-footer-content h5,
-.site-footer-content h6 {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #334155;
+::-webkit-scrollbar-thumb:hover {
+  background: #9d9d9d; /* s-grey-600 */
 }
 
-.site-footer-content li {
-  display: inline-flex;
-  align-items: center;
-}
-
-.site-footer-content a {
-  color: #4f46e5;
-  text-decoration: none;
-}
-
-.site-footer-content a:hover {
-  color: #4338ca;
-  text-decoration: underline;
-}
-
-.site-footer-content img {
-  height: 20px;
-  width: auto;
-  max-width: 100%;
-  display: inline-block;
-  vertical-align: middle;
+/* 头部 App Bar 下方真机实测渐隐阴影（约 8dp，从 rgba(0,0,0,.045) 渐隐） */
+.appbar-shadow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 8px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.045), rgba(0, 0, 0, 0));
+  pointer-events: none;
 }

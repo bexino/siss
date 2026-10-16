@@ -4,7 +4,7 @@ Static scheduling app (能工智人排班系统): a 5-step wizard that generates
 
 ## Running & verifying
 
-- Tailwind v4 browser build is loaded from CDN (`https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4`), so styling requires network access. It compiles utility classes from the DOM at runtime.
+- 依赖：`npm install`（Vite + Tailwind v4 插件，见 package.json）。开发用 `npm run dev`（热更新）；部署/分发用 `npm run build` 产出 `dist/`（相对路径 base，`dist/index.html` 可直接双击打开）。`dist/` 与 `node_modules/` 不入库。
 - `js/scheduler.js` has a `module.exports` guard at the bottom, so its pure logic can be sanity-checked in Node without any test framework, e.g.:
   `node -e "console.log(require('./js/scheduler.js').calculateCycle(22,4))"`
 
@@ -15,6 +15,7 @@ Static scheduling app (能工智人排班系统): a 5-step wizard that generates
 - New UI elements: add the ID in `index.html` and register it in the `elements` map at the top of `app.js` — elements are looked up once at script load (scripts sit at end of `<body>`; moving them breaks this).
 - All UI text and code comments are Simplified Chinese (`lang="zh-CN"`); keep that convention.
 - Dates are keyed as local-time `YYYY-MM-DD` strings via `formatDate`/`parseDate` (used as Set/Map keys for holidays and makeup workdays). Don't introduce `toISOString()` — the UTC shift corrupts those keys.
+- 样式规则：UI 颜色、圆角、阴影等视觉规格一律使用标准 Tailwind 工具类（如 `bg-indigo-600`、`rounded-xl`），非必要不硬编码 HEX/px。仅 `generateStandaloneHtml` 的导出内联 CSS、scrollbar 伪元素等无法用工具类表达的少数位置例外（须注释标注对应 Tailwind 色值）。保留壳类（JS 动态引用的类名）内部用 `@apply` 引用标准工具类。
 
 ## Gotchas
 

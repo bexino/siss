@@ -63,6 +63,10 @@ HTML Only + JavaScript Native.
 > node -e "console.log(require('./js/scheduler.js').calculateCycle(22,4))"
 > ```
 
+## 鸣谢
+
+[smartisan-ui-skill](https://github.com/lemonteaau/smartisan-ui-skill)
+
 ## 许可证
 
 Apache-2.0 license
@@ -130,3 +134,7 @@ HTML Only + JavaScript Native.
 ## License
 
 Apache-2.0 license
+
+## Acknowledgments
+
+[smartisan-ui-skill](https://github.com/lemonteaau/smartisan-ui-skill)
