@@ -1,6 +1,6 @@
-[![在线体验](https://img.shields.io/badge/在线体验-使用简体中文-red)](https://github.com/bexino/siss)
-[![EnglishOnlineDEMO](https://img.shields.io/badge/Try_our_online_demo-In_English-orange)](https://bexino.github.io/siss/?lang=en)
-[![EnglishREADME](https://img.shields.io/badge/README.md-In_English-yellow)](#English)
+[![QuickStart](https://img.shields.io/badge/Quick-Start-red)](#quick-start)
+[![QuickStart](https://img.shields.io/badge/快速-开始-orange)](#快速开始)
+[![English](https://img.shields.io/badge/Eng-lish-yellow)](#English)
 [![Commit Activity](https://img.shields.io/github/commit-activity/t/bexino/siss?color=green)](https://github.com/bexino/siss/commits/main/)
 [![License](https://img.shields.io/github/license/bexino/siss?color=blue)](https://github.com/bexino/siss/blob/main/LICENSE)
 [![MadeWith♥](https://img.shields.io/badge/@bexino-用_♥_制作-purple)](https://github.com/bexino)
@@ -12,7 +12,7 @@
 
 ## 快速开始
 
-[![](https://img.shields.io/badge/点击访问在线演示-orange)](https://github.com/bexino/siss)
+[![在线体验](https://img.shields.io/badge/在线体验-使用简体中文-red)](https://github.com/bexino/siss)  
 
 ## 特性
 
@@ -80,7 +80,7 @@ A simple and practical static scheduling tool: it generates duty rosters through
 
 ## Quick Start
 
-[![EnglishOnlineDEMO](https://img.shields.io/badge/Try_our_online_demo-In_English-blue)](https://bexino.github.io/siss/?lang=en)
+[![EnglishOnlineDEMO](https://img.shields.io/badge/Try_our_online_demo-In_English-orange)](https://bexino.github.io/siss/?lang=en)
 
 ## Features
 
