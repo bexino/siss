@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>能工智人排班系统</title>
+  <!-- 主题防闪烁：URL 参数 theme=day/dark 强制日/夜，无参数跟随设备偏好（不持久化，每次进入重置） -->
+  <script>
+    (function () {
+      var theme = new URLSearchParams(location.search).get('theme');
+      var dark = theme === 'dark' ||
+        (theme !== 'day' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) document.documentElement.classList.add('dark');
+    })();
+  </script>
+  <!-- Material Symbols 图标字体（LoliNet 镜像，代理 fonts.googleapis.com / fonts.gstatic.com） -->
+  <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+  <link rel="preconnect" href="https://gstatic.loli.net" crossorigin>
+  <link rel="stylesheet" href="https://fonts.loli.net/icon?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-s-page text-s-grey-900 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- 顶部导航条（Smartisan App Bar：白底、内容居中、下方渐隐阴影；与 main 相同 max-w 对齐） -->
+  <header class="appbar-shadow relative z-30 bg-white border-b-[0.8px] border-s-grey-400 sticky top-0">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-2">
+      <!-- 语言切换（顶栏左侧，仅地球图标；仅主页显示） -->
+      <button type="button" id="top-btn-lang" onclick="toggleLanguage()" class="hidden! shrink-0 inline-flex items-center justify-center p-1.5 text-s-icon active:text-s-grey-800" aria-label="English" title="English">
+        <span class="material-symbols-outlined text-[24px]!" aria-hidden="true">language</span>
+      </button>
+
+      <!-- 上一步（原生 App Bar 图标按钮：无背景，按下仅图标变深；JS 控制显隐与跳转） -->
+      <button type="button" id="top-btn-back" class="hidden! shrink-0 inline-flex items-center justify-center p-1.5 text-s-icon active:text-s-grey-800" aria-label="上一步" title="上一步">
+        <span class="material-symbols-outlined text-[24px]!" aria-hidden="true">arrow_back</span>
+      </button>
+
+      <!-- 步骤描述（点击弹出居中导览菜单；主页时仅显示站名，禁用菜单） -->
+      <button type="button" id="top-step-title" class="step-title-button flex-1 justify-center" data-step="1" aria-haspopup="menu" aria-expanded="false" onclick="toggleStepMenu(this)">
+        <span id="top-step-number" class="step-title-number hidden">1</span>
+        <span id="top-step-text">能工智人排班系统</span>
+      </button>
+
+      <div id="top-step-menu" class="step-menu hidden" role="menu" aria-label="步骤进度导览">
+        <div class="step-menu-list" role="menu"></div>
+      </div>
+
+      <!-- 下一步（原生 App Bar 图标按钮位置，蓝色图标；JS 控制显隐与跳转） -->
+      <button type="button" id="top-btn-next" class="hidden! shrink-0 inline-flex items-center justify-center p-1.5 text-s-blue-400 active:text-s-blue-pressed" aria-label="下一步" title="下一步">
+        <span id="top-next-icon" class="material-symbols-outlined text-[24px]!" aria-hidden="true">arrow_forward</span>
+      </button>
+
+      <!-- 显示模式切换（顶栏右侧，仅主页显示；跟随设备=电脑图标 / 日 / 夜 三态循环） -->
+      <button type="button" id="top-btn-mode" onclick="toggleThemeMode()" class="hidden! shrink-0 inline-flex items-center justify-center p-1.5 text-s-icon active:text-s-grey-800" aria-label="跟随设备" title="跟随设备">
+        <span id="top-mode-icon" class="material-symbols-outlined text-[24px]!" aria-hidden="true">computer</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 主容器 -->
+  <main class="max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 flex-1">
+
+    <!-- 步骤 0: 主页 -->
+    <section id="panel-step-0" class="step-panel bg-white rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card p-6 sm:p-8">
+      <div class="flex flex-col items-center text-center py-8 sm:py-14 space-y-8">
+        <div class="space-y-3">
+          <h2 class="text-2xl sm:text-3xl font-bold text-s-grey-800"> </h2>
+          <p class="text-sm sm:text-base text-s-grey-600"> </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-xl">
+          <button type="button" onclick="goToStep(1)" class="flex flex-col items-center gap-2 py-6 px-4 bg-s-primary border-[0.8px] border-s-blue-500 text-white rounded-s-lg shadow-s-card-sm active:bg-s-blue-pressed active:border-s-blue-600">
+            <span class="material-symbols-outlined text-[32px]!" aria-hidden="true">edit_calendar</span>
+            <span class="text-lg font-semibold">开始新的排班</span>
+          </button>
+          <button type="button" onclick="goToEditStep(1)" class="flex flex-col items-center gap-2 py-6 px-4 bg-s-grad-white border-[0.8px] border-s-grey-300 text-s-grey-800 rounded-s-lg shadow-s-card-sm active:bg-s-grad-white-pressed">
+            <span class="material-symbols-outlined text-[32px]! text-s-blue-400" aria-hidden="true">history</span>
+            <span class="text-lg font-semibold">顺延自旧排班表</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 步骤 1: 名单录入与人数设置 -->
+    <section id="panel-step-1" class="step-panel hidden bg-white rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card p-6 sm:p-8">
+      <div class="space-y-6">
+        <!-- 名单输入 -->
+        <div>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
+            <label for="names-input" class="block text-sm font-semibold text-s-grey-800">
+              人员名单列表 <span id="names-count-badge" class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-s-blue-100 text-s-blue-400 border-[0.8px] border-s-chip-blue-border">已识别 0 人</span>
+            </label>
+            <div class="flex items-center space-x-2 sm:shrink-0">
+              <button type="button" id="btn-load-sample" class="inline-flex items-center justify-center gap-1 h-[30px] px-[10px] bg-s-blue-100 text-s-blue-400 active:bg-s-chip-blue-border/40 border-[0.8px] border-s-chip-blue-border rounded-s-sm text-xs font-medium">
+                <span class="material-symbols-outlined text-[18px]!" aria-hidden="true">playlist_add</span>
+                <span>载入示例</span>
+              </button>
+              <button type="button" id="btn-clear-names" class="inline-flex items-center gap-1 h-[30px] px-[10px] bg-s-blue-100 text-s-blue-400 active:bg-s-chip-blue-border/40 border-[0.8px] border-s-chip-blue-border rounded-s-sm text-xs font-medium">
+                <span class="material-symbols-outlined text-[18px]!" aria-hidden="true">mop</span>
+                <span>清空</span>
+              </button>
+            </div>
+          </div>
+          <textarea id="names-input" rows="5" placeholder="输入人员姓名，用逗号（全角或半角）或换行分隔，如：&#10;张三, 李四, 王五，赵六，钱七" class="w-full rounded-s-md border-[0.8px] border-s-grey-400 p-3.5 text-sm text-s-grey-900 placeholder-s-placeholder shadow-s-inset-field focus:border-s-chip-blue-border focus:outline-none transition-colors font-mono"></textarea>
+          <p class="text-xs text-s-grey-600 mt-1.5">请使用换行或逗号分隔，全半角不限。</p>
+        </div>
+
+        <!-- 每日人数设置与无余数自动计算结果 -->
+        <div class="bg-s-grey-100 p-5 rounded-s-lg border-[0.8px] border-s-grey-400">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <label for="daily-count" class="block text-sm font-semibold text-s-grey-800 mb-1">
+                每日值班人数
+              </label>
+              <div class="flex items-center space-x-3 mt-2">
+                <button type="button" id="btn-decrease-daily" aria-label="减少" title="减少" class="w-10 h-10 rounded-s-md bg-s-grad-white border-[0.8px] border-s-grey-300 text-s-grey-800 active:bg-s-grad-white-pressed inline-flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[20px]!" aria-hidden="true">remove</span>
+                </button>
+                <input type="number" id="daily-count" min="1" max="50" value="4" class="w-24 text-center rounded-s-md border-[0.8px] border-s-grey-400 py-2 px-3 text-s-grey-900 font-semibold shadow-s-inset-field focus:border-s-chip-blue-border focus:outline-none">
+                <button type="button" id="btn-increase-daily" aria-label="增加" title="增加" class="w-10 h-10 rounded-s-md bg-s-grad-white border-[0.8px] border-s-grey-300 text-s-grey-800 active:bg-s-grad-white-pressed inline-flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[20px]!" aria-hidden="true">add</span>
+                </button>
+                <span class="text-xs text-s-grey-600">人 / 天</span>
+              </div>
+            </div>
+            <div class="bg-white p-4 rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card-sm sm:min-w-80">
+              <div class="text-xs font-semibold text-s-blue-400 mb-1 flex items-center">
+              </div>
+              <div id="step-1-cycle-hint" class="text-xs text-s-grey-800 font-medium leading-relaxed">
+                输入名单后将自动计算最小无余数天数。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 错误提示容器（Smartisan Chip 红） -->
+        <div id="step-1-error" class="hidden p-3 rounded-s-md bg-s-chip-red-bg border-[0.8px] border-s-chip-red-border text-xs text-s-chip-red-text font-medium"></div>
+      </div>
+    </section>
+
+    <!-- 步骤 2: 轮换方案检查与随机生成 -->
+    <section id="panel-step-2" class="step-panel hidden bg-white rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card p-6 sm:p-8">
+      <!-- 数据指标面板 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
+        <div class="bg-white p-4 rounded-s-lg border-[0.8px] border-s-grey-400 text-center shadow-s-card-sm">
+          <div class="text-xs text-s-grey-700 font-medium mb-1">总参与人数</div>
+          <div id="stat-total-people" class="text-2xl font-black text-s-grey-800">49 人</div>
+        </div>
+        <div class="bg-white p-4 rounded-s-lg border-[0.8px] border-s-grey-400 text-center shadow-s-card-sm">
+          <div class="text-xs text-s-grey-700 font-medium mb-1">每日值班人数</div>
+          <div id="stat-daily-people" class="text-2xl font-black text-s-grey-800">4 人</div>
+        </div>
+        <div class="bg-white p-4 rounded-s-lg border-[0.8px] border-s-grey-400 text-center shadow-s-card-sm">
+          <div class="text-xs text-s-grey-700 font-medium mb-1">本轮次天数</div>
+          <div id="stat-total-days" class="text-2xl font-black text-s-blue-400">49 天整</div>
+        </div>
+        <div class="bg-white p-4 rounded-s-lg border-[0.8px] border-s-grey-400 text-center shadow-s-card-sm">
+          <div class="text-xs text-s-grey-700 font-medium mb-1">每人轮值次数</div>
+          <div id="stat-shifts-per-person" class="text-2xl font-black text-s-blue-400">4 次</div>
+        </div>
+      </div>
+
+      <!-- 轮换方案列表预览 -->
+      <div class="border-[0.8px] border-s-grey-400 rounded-s-lg overflow-hidden mb-6">
+        <div class="bg-s-grey-100 px-4 py-2.5 border-b-[0.8px] border-s-grey-400 flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
+          <div class="flex items-center gap-2 flex-wrap flex-1">
+            <!-- Smartisan 分段 Tab（全站统一样式，见 style.css .smtabs） -->
+            <div class="smtabs" role="tablist" aria-label="轮换方案视图切换">
+              <button type="button" id="tab-step2-days" role="tab" aria-selected="true" class="is-active">
+                日期
+              </button>
+              <button type="button" id="tab-step2-people" role="tab" aria-selected="false">
+                人员
+              </button>
+            </div>
+          </div>
+          <!-- 修改 / 重新打乱（圆形纯图标按钮，居右） -->
+          <div class="flex items-center gap-1.5 self-end sm:self-auto">
+            <button type="button" id="btn-edit-assignments" aria-label="修改" title="修改" class="inline-flex items-center justify-center w-8 h-8 bg-s-blue-100 text-s-blue-400 active:brightness-95 border-[0.8px] border-s-chip-blue-border rounded-full">
+              <span class="material-symbols-outlined text-[18px]!" aria-hidden="true">edit</span>
+            </button>
+            <button type="button" id="btn-reshuffle" aria-label="重新打乱" title="重新打乱" class="inline-flex items-center justify-center w-8 h-8 bg-s-chip-yellow-bg text-s-chip-yellow-text active:brightness-95 border-[0.8px] border-s-chip-yellow-border rounded-full">
+              <span class="material-symbols-outlined text-[18px]!" aria-hidden="true">shuffle</span>
+            </button>
+          </div>
+        </div>
+        <!-- 按天列表 -->
+        <div class="divide-y divide-s-grey-200 bg-white" id="schedule-preview-list">
+          <!-- JS 动态渲染 -->
+        </div>
+        <!-- 按人列表 -->
+        <div class="divide-y divide-s-grey-200 bg-white hidden" id="schedule-person-stats-list">
+          <!-- JS 动态渲染 -->
+        </div>
+      </div>
+
+      <!-- 操作按钮已移至顶部导航条 -->
+    </section>
+
+    <!-- 步骤 3: 选择开始日期 -->
+    <section id="panel-step-3" class="step-panel hidden bg-white rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card p-6 sm:p-8">
+      <div class="max-w-md space-y-6">
+        <div>
+          <label for="start-date-input" class="block text-sm font-semibold text-s-grey-800 mb-2">
+            起始日期
+          </label>
+          <div class="relative">
+            <input type="text" readonly id="start-date-input" data-picker-field data-picker-title="选择起始日期" class="w-full cursor-pointer rounded-s-md border-[0.8px] border-s-grey-400 py-3 px-4 text-base text-s-grey-900 bg-white shadow-s-inset-field focus:border-s-chip-blue-border focus:outline-none">
+          </div>
+          <div id="start-date-weekday-tag" class="mt-2 text-xs font-medium text-s-grey-600"></div>
+        </div>
+
+        <!-- 操作按钮已移至顶部导航条 -->
+      </div>
+    </section>
+
+    <!-- 步骤 4: 假期修改（排班/放假/补班交互） -->
+    <section id="panel-step-4" class="step-panel hidden bg-white rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card p-6 sm:p-8">
+      <p class="text-sm text-s-grey-600 mb-5">
+        - 点击工作日：切换为放假（休）；<br>- 点击休息日：切换为调休补班（补）。
+      </p>
+
+      <!-- 排班修改控制卡片（已整体注释：排班区间 / 查找单日两卡片）
+      <div class="grid grid-cols-2 gap-3 mb-4 sm:gap-2">
+        <div class="bg-white p-4 rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card-sm flex flex-col text-xs">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-s-grey-800">排班区间</h3>
+            <button type="button" id="btn-cal-clear-all" aria-label="重置" title="重置" class="inline-flex shrink-0 items-center justify-center w-8 h-8 bg-s-grad-white border-[0.8px] border-s-grey-300 active:bg-s-grad-white-pressed text-s-grey-800 rounded-full"><span class="material-symbols-outlined text-[16px]!" aria-hidden="true">restart_alt</span></button>
+          </div>
+          <div class="flex-1 text-sm leading-7 text-s-grey-900">
+            <div id="cal-stat-range-start">-</div>
+            <div>至</div>
+            <div id="cal-stat-range-end">-</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card-sm flex flex-col text-xs">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-s-grey-800">查找单日</h3>
+            <button type="button" id="btn-quick-reset-date" aria-label="恢复初始" title="恢复初始" class="inline-flex shrink-0 items-center justify-center w-8 h-8 bg-s-grad-white text-s-grey-800 active:bg-s-grad-white-pressed border-[0.8px] border-s-grey-300 rounded-full"><span class="material-symbols-outlined text-[16px]!" aria-hidden="true">undo</span></button>
+          </div>
+          <div class="relative mb-2 w-full">
+            <input type="text" readonly id="calendar-quick-date-input" data-picker-field data-picker-title="查找单日" placeholder="请选择" class="w-full cursor-pointer rounded-s-sm border-[0.8px] border-s-grey-400 bg-white px-3 py-2 sm:py-1.5 text-left text-xs sm:text-sm font-semibold text-s-blue-400 placeholder-s-grey-600 shadow-s-inset-field focus:border-s-chip-blue-border focus:outline-none">
+            <button type="button" id="calendar-quick-date-button" class="hidden" aria-hidden="true" tabindex="-1"></button>
+          </div>
+          <div class="mt-2 flex flex-col items-start gap-2">
+            <span id="calendar-quick-date-state" class="text-xs font-semibold text-s-grey-600">请选择</span>
+            <div class="flex gap-4">
+              <button type="button" id="btn-quick-set-holiday" class="w-10 h-10 bg-s-chip-red-bg text-s-chip-red-text active:opacity-80 border-[0.8px] border-s-chip-red-border rounded-full font-bold inline-flex items-center justify-center" title="设为休假：跳过"><span class="material-symbols-outlined text-[16px]!" aria-hidden="true">beach_access</span></button>
+              <button type="button" id="btn-quick-set-workday" class="w-10 h-10 bg-s-chip-blue-border/25 text-s-blue-400 active:opacity-80 border-[0.8px] border-s-chip-blue-border rounded-full font-bold inline-flex items-center justify-center" title="设为排班：调休补班"><span class="material-symbols-outlined text-[16px]!" aria-hidden="true">work</span></button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      -->
+
+      <!-- 月份切换（横向，置于日历上方；月份切换器居中，起始/结束月圆形按钮分列两侧） -->
+      <div class="mb-4 bg-white p-3 rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card-sm flex items-center justify-between gap-2 text-xs">
+        <button type="button" id="btn-jump-start-month" aria-label="跳至起始月" title="跳至起始月" class="w-10 h-10 shrink-0 rounded-full bg-s-grad-white border-[0.8px] border-s-grey-300 active:bg-s-grad-white-pressed flex items-center justify-center text-s-grey-800"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">first_page</span></button>
+        <div class="flex items-center gap-2">
+          <button type="button" id="btn-prev-month" class="w-10 h-10 shrink-0 rounded-full bg-s-grad-white border-[0.8px] border-s-grey-300 active:bg-s-grad-white-pressed flex items-center justify-center text-s-grey-800" aria-label="上一月" title="上一月"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">chevron_left</span></button>
+          <span id="calendar-month-title" class="text-sm leading-7 text-s-grey-900 min-w-16 text-center">2026/09</span>
+          <button type="button" id="btn-next-month" class="w-10 h-10 shrink-0 rounded-full bg-s-grad-white border-[0.8px] border-s-grey-300 active:bg-s-grad-white-pressed flex items-center justify-center text-s-grey-800" aria-label="下一月" title="下一月"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">chevron_right</span></button>
+        </div>
+        <button type="button" id="btn-jump-end-month" aria-label="跳至结束月" title="跳至结束月" class="w-10 h-10 shrink-0 rounded-full bg-s-grad-white border-[0.8px] border-s-grey-300 active:bg-s-grad-white-pressed flex items-center justify-center text-s-grey-800"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">last_page</span></button>
+      </div>
+
+      <!-- 已排除/补班标签容器 -->
+      <div id="excluded-tags-container" class="hidden mb-4 p-3 bg-s-grey-100 rounded-s-lg border-[0.8px] border-s-grey-400">
+        <div class="text-xs font-semibold text-s-grey-800 mb-2 flex items-center justify-between">
+          <span>已选择：</span>
+          <span class="text-s-grey-600 font-normal"> </span>
+        </div>
+        <div id="excluded-tags-list" class="flex flex-wrap gap-2">
+          <!-- JS 动态渲染 -->
+        </div>
+      </div>
+
+      <!-- 月历假期修改主体 -->
+      <div class="border-[0.8px] border-s-grey-400 rounded-s-lg overflow-hidden bg-white shadow-s-card-sm mb-6">
+        <!-- 星期表头 -->
+        <div class="grid grid-cols-7 text-center text-xs font-semibold py-2.5 border-b-[0.8px] border-s-grey-400 bg-s-grey-100 text-s-grey-700">
+          <div class="text-s-chip-red-text font-bold">周日</div>
+          <div>周一</div>
+          <div>周二</div>
+          <div>周三</div>
+          <div>周四</div>
+          <div>周五</div>
+          <div class="text-s-chip-red-text font-bold">周六</div>
+        </div>
+
+        <!-- 月历日期网格 (7列 x 5~6行) -->
+        <div id="calendar-grid" class="grid grid-cols-7 divide-x divide-y divide-s-grey-200 bg-s-grey-100/50">
+          <!-- JS 动态渲染各日期单元格 -->
+        </div>
+
+      </div>
+
+      <!-- 颜色指示器（日历下方，横向排布；电脑端居中，手机端换行为每行 2 个） -->
+      <div class="mb-6 flex flex-wrap justify-center gap-x-8 gap-y-2 text-xs sm:max-xl:grid sm:max-xl:grid-cols-2 sm:max-xl:justify-items-center sm:max-xl:gap-x-16">
+        <div class="flex items-center text-s-blue-400"><span class="w-3 h-3 shrink-0 rounded-full bg-s-blue-300 mr-1.5"></span>默认排班</div>
+        <div class="flex items-center text-s-grey-600"><span class="w-3 h-3 shrink-0 rounded-full bg-s-icon-chevron mr-1.5"></span>双休日</div>
+        <div class="flex items-center text-s-chip-red-text"><span class="w-3 h-3 shrink-0 rounded-full bg-s-chip-red-border mr-1.5"></span>手动节假日</div>
+        <div class="flex items-center text-s-chip-yellow-text"><span class="w-3 h-3 shrink-0 rounded-full bg-s-chip-yellow-border mr-1.5"></span>调休补班</div>
+      </div>
+
+      <!-- 操作按钮已移至顶部导航条 -->
+    </section>
+
+    <!-- 步骤 5: 排班结果输出 (卡片、表格与文本共用同一视图切换器) -->
+    <section id="panel-step-5" class="step-panel hidden bg-white rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card p-6 sm:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2 mb-6">
+        <div class="text-sm text-s-grey-600 hidden"> </div>
+        <div class="flex items-center justify-center flex-wrap gap-2">
+          <button type="button" id="btn-download-html" class="inline-flex items-center gap-1.5 px-4 py-2 bg-s-primary border-[0.8px] border-s-blue-500 text-white rounded-s-md text-sm font-medium shadow-s-card-sm active:bg-s-blue-pressed active:border-s-blue-600">
+            <span class="material-symbols-outlined text-[18px]!" aria-hidden="true">download</span><span>导出HTML</span>
+          </button>
+          <button type="button" id="btn-download-csv" class="inline-flex items-center gap-1.5 px-4 py-2 bg-s-grad-white border-[0.8px] border-s-grey-300 text-s-grey-800 rounded-s-md text-sm font-medium active:bg-s-grad-white-pressed">
+            <span class="material-symbols-outlined text-[18px]!" aria-hidden="true">table_view</span><span>导出CSV表格</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 排班结果容器 (三视图) -->
+      <div class="border-[0.8px] border-s-grey-400 rounded-s-lg overflow-hidden mb-2 bg-white">
+        <!-- 搜索与筛选工具条 -->
+        <div class="p-3 bg-s-grey-100 border-b-[0.8px] border-s-grey-400 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div class="relative flex-1 max-w-lg">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-s-icon pointer-events-none"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">search</span></span>
+            <input type="text" id="table-search-input" placeholder="输入姓名、日期或星期搜索..." class="w-full pl-9 pr-8 py-2 text-xs sm:text-sm rounded-s-md border-[0.8px] border-s-grey-400 shadow-s-inset-field focus:border-s-chip-blue-border focus:outline-none bg-white text-s-grey-900">
+            <button type="button" id="btn-clear-table-search" class="hidden absolute inset-y-0 right-0 pr-3 items-center text-s-icon active:text-s-grey-800"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">close</span></button>
+          </div>
+          <div class="flex items-center justify-between sm:justify-end space-x-3 text-xs">
+            <span id="search-result-stats" class="font-medium text-s-grey-800">共 49 天</span>
+            <!-- Smartisan 分段 Tab（全站统一样式，见 style.css .smtabs） -->
+            <div class="smtabs" role="tablist" aria-label="排班结果视图切换">
+              <button type="button" id="btn-subview-cards" role="tab" aria-selected="true" class="is-active">卡片</button>
+              <button type="button" id="btn-subview-table" role="tab" aria-selected="false">表格</button>
+              <button type="button" id="btn-subview-text" role="tab" aria-selected="false">文本</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 移动端友好的卡片流视图容器 -->
+        <div id="final-cards-container" class="p-3 sm:p-4 space-y-2.5 bg-s-grey-100/50">
+          <!-- JS 动态渲染卡片 -->
+        </div>
+
+        <!-- 电脑端表格容器 -->
+        <div id="final-table-scroll-container" class="max-h-96 overflow-y-auto overflow-x-auto hidden">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm [&_tbody_tr:nth-child(even)]:bg-s-grey-100 min-w-[500px]">
+            <thead class="bg-s-grey-100 text-s-grey-700 font-semibold sticky top-0 border-b-[0.8px] border-s-grey-400 z-10">
+              <tr>
+                <th class="py-3 px-4 w-20">序号</th>
+                <th class="py-3 px-4 w-36">日期</th>
+                <th class="py-3 px-4 w-24">星期</th>
+                <th class="py-3 px-4">值班人员</th>
+              </tr>
+            </thead>
+            <tbody id="final-table-body" class="divide-y divide-s-grey-200 text-s-grey-900">
+              <!-- 动态填充 -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 搜索空状态 -->
+        <div id="table-empty-search" class="hidden p-8 text-center text-s-grey-600 text-sm">
+          <div class="text-2xl mb-1"><span class="material-symbols-outlined text-[28px]!" aria-hidden="true">search</span></div>
+          未找到与当前关键词匹配的排班记录
+        </div>
+      </div>
+
+      <!-- Markdown 文本视图 -->
+      <div id="view-text-container" class="relative hidden">
+        <textarea id="markdown-output" rows="16" readonly class="w-full overflow-y-hidden rounded-s-md bg-s-grey-900 text-s-grey-100 p-4 pr-16 font-mono text-xs sm:text-sm leading-relaxed border-[0.8px] border-s-grey-900 shadow-s-inset-field focus:outline-none"></textarea>
+        <div class="absolute top-3 right-3">
+          <button type="button" id="btn-copy-markdown" aria-label="复制 Markdown 文本" title="复制 Markdown 文本" class="h-9 inline-flex items-center gap-1 rounded-s-md bg-s-primary border-[0.8px] border-s-blue-500 px-3 text-xs sm:text-sm text-white font-semibold shadow-s-card-sm active:bg-s-blue-pressed active:border-s-blue-600"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">content_copy</span>复制</button>
+        </div>
+      </div>
+    </section>
+
+    <!--  顺延自旧排班表 第 1 步: 导入旧表 -->
+    <section id="panel-edit-step-1" class="step-panel hidden bg-white rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card p-6 sm:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <p class="text-sm text-s-grey-600">导入现有的排班表，作为重新编排的基础。<br><b>仅支持本系统导出的 CSV 表格文件或 Markdown 文本，</b>敬请谅解。</p>
+        <div class="sm:shrink-0 flex items-center justify-center gap-2">
+          <input type="file" id="edit-import-file-input" accept=".csv,text/csv,text/plain" class="hidden">
+          <button type="button" id="btn-edit-load-sample" class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-s-blue-100 text-s-blue-400 active:bg-s-chip-blue-border/40 border-[0.8px] border-s-chip-blue-border rounded-s-md text-sm font-medium">
+            <span class="material-symbols-outlined text-[18px]!" aria-hidden="true">playlist_add</span><span>载入示例</span>
+          </button>
+          <button type="button" id="btn-edit-import-file" class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-s-blue-100 text-s-blue-400 active:bg-s-chip-blue-border/40 border-[0.8px] border-s-chip-blue-border rounded-s-md text-sm font-medium">
+            <span class="material-symbols-outlined text-[18px]!" aria-hidden="true">upload_file</span><span>选取CSV表格</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-6 mt-6">
+        <!-- Markdown 文本粘贴 -->
+        <div>
+          <label for="edit-import-textarea" class="block text-sm font-semibold text-s-grey-800 mb-2">粘贴 Markdown 文本</label>
+          <p class="text-xs text-s-grey-600 mb-2"> </p>
+          <div class="relative">
+            <textarea id="edit-import-textarea" rows="10" placeholder="## 2026-09-01，周二&#10;张三，李四，王五&#10;&#10;## 2026-09-02，周三&#10;赵六，钱七，孙八" class="w-full rounded-s-md border-[0.8px] border-s-grey-400 p-3.5 text-sm text-s-grey-900 placeholder-s-placeholder shadow-s-inset-field focus:border-s-chip-blue-border focus:outline-none transition-colors font-mono"></textarea>
+            <button type="button" id="btn-edit-clear-import" class="absolute top-2.5 right-2.5 inline-flex items-center justify-center gap-1 h-[30px] px-[10px] bg-s-blue-100 text-s-blue-400 active:bg-s-chip-blue-border/40 border-[0.8px] border-s-chip-blue-border rounded-s-sm text-xs font-medium">
+              <span class="material-symbols-outlined text-[18px]!" aria-hidden="true">mop</span>
+              <span>清空</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 解析错误提示（Smartisan Chip 红） -->
+        <div id="edit-import-error" class="hidden p-3 rounded-s-md bg-s-chip-red-bg border-[0.8px] border-s-chip-red-border text-xs text-s-chip-red-text font-medium"></div>
+      </div>
+    </section>
+
+    <!--  顺延自旧排班表 第 2 步: 检查日期 -->
+    <section id="panel-edit-step-2" class="step-panel hidden bg-white rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card p-6 sm:p-8">
+      <div class="space-y-6">
+        <p class="text-sm text-s-grey-600">已经执行完毕到了哪一天？选中的日期（含该天）以前的信息将被忽略。</p>
+        <!-- 已执行截止日选择 -->
+        <div class="bg-s-grey-100 p-5 rounded-s-lg border-[0.8px] border-s-grey-400">
+          <label for="edit-executed-through-input" class="block text-sm font-semibold text-s-grey-800 mb-2">
+            截止日期（含该天）
+          </label>
+          <input type="text" readonly id="edit-executed-through-input" data-picker-field data-picker-title="选择截止日期" class="w-full sm:w-64 cursor-pointer rounded-s-md border-[0.8px] border-s-grey-400 py-2.5 px-4 text-base text-s-grey-900 bg-white shadow-s-inset-field focus:border-s-chip-blue-border focus:outline-none">
+          <div id="edit-executed-weekday-tag" class="mt-2 text-xs font-medium text-s-grey-600"></div>
+          <div id="edit-stat-remaining" class="mt-2 text-sm font-medium text-s-grey-800"></div>
+        </div>
+
+        <!-- 导入内容卡片视图（无导入内容时隐藏，避免空白占位） -->
+        <div id="edit-imported-cards-container" class="hidden space-y-2.5 bg-s-grey-100/50 rounded-s-lg border-[0.8px] border-s-grey-400 p-3 sm:p-4">
+          <!-- JS 动态渲染卡片 -->
+        </div>
+
+        <!-- 操作按钮已移至顶部导航条 -->
+      </div>
+    </section>
+
+    <!--  顺延自旧排班表 第 3 步: 选择日期（新编排起始日期） -->
+    <section id="panel-edit-step-3" class="step-panel hidden bg-white rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card p-6 sm:p-8">
+      <div class="space-y-6">
+        <p class="text-sm text-s-grey-600">选择重新编排的起始日期，下一步将在此后进行假期调整。</p>
+
+        <!-- 新编排起始日期卡片 -->
+        <div class="bg-s-grey-100 p-5 rounded-s-lg border-[0.8px] border-s-grey-400 max-w-md">
+          <label for="edit-new-start-date-input" class="block text-sm font-semibold text-s-grey-800 mb-2">
+            新编排起始日期
+          </label>
+          <input type="text" readonly id="edit-new-start-date-input" data-picker-field data-picker-title="选择新起始日期" class="w-full cursor-pointer rounded-s-md border-[0.8px] border-s-grey-400 py-2.5 px-4 text-base text-s-grey-900 bg-white shadow-s-inset-field focus:border-s-chip-blue-border focus:outline-none">
+          <div id="edit-new-weekday-tag" class="mt-2 text-xs font-medium text-s-grey-600"></div>
+        </div>
+
+        <!-- 操作按钮已移至顶部导航条 -->
+      </div>
+    </section>
+
+    <!--  顺延自旧排班表 第 4 步: 假期调整（月历交互） -->
+    <section id="panel-edit-step-4" class="step-panel hidden bg-white rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card p-6 sm:p-8">
+      <div class="space-y-6">
+        <p class="text-sm text-s-grey-600">
+          - 点击工作日：切换为放假（休）；<br>- 点击休息日：切换为调休补班（补）。
+        </p>
+
+        <!-- 月份切换（横向，置于日历上方；月份切换器居中，起始/结束月圆形按钮分列两侧） -->
+        <div class="bg-white p-3 rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card-sm flex items-center justify-between gap-2 text-xs">
+          <button type="button" id="btn-edit-jump-start-month" aria-label="跳至起始月" title="跳至起始月" class="w-10 h-10 shrink-0 rounded-full bg-s-grad-white border-[0.8px] border-s-grey-300 active:bg-s-grad-white-pressed flex items-center justify-center text-s-grey-800"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">first_page</span></button>
+          <div class="flex items-center gap-2">
+            <button type="button" id="btn-edit-prev-month" class="w-10 h-10 shrink-0 rounded-full bg-s-grad-white border-[0.8px] border-s-grey-300 active:bg-s-grad-white-pressed flex items-center justify-center text-s-grey-800" aria-label="上一月" title="上一月"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">chevron_left</span></button>
+            <span id="edit-calendar-month-title" class="text-sm leading-7 text-s-grey-900 min-w-16 text-center">2026/09</span>
+            <button type="button" id="btn-edit-next-month" class="w-10 h-10 shrink-0 rounded-full bg-s-grad-white border-[0.8px] border-s-grey-300 active:bg-s-grad-white-pressed flex items-center justify-center text-s-grey-800" aria-label="下一月" title="下一月"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">chevron_right</span></button>
+          </div>
+          <button type="button" id="btn-edit-jump-end-month" aria-label="跳至结束月" title="跳至结束月" class="w-10 h-10 shrink-0 rounded-full bg-s-grad-white border-[0.8px] border-s-grey-300 active:bg-s-grad-white-pressed flex items-center justify-center text-s-grey-800"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">last_page</span></button>
+        </div>
+
+        <!-- 已排除/补班标签容器 -->
+        <div id="edit-excluded-tags-container" class="hidden p-3 bg-s-grey-100 rounded-s-lg border-[0.8px] border-s-grey-400">
+          <div class="text-xs font-semibold text-s-grey-800 mb-2">已选择：</div>
+          <div id="edit-excluded-tags-list" class="flex flex-wrap gap-2">
+            <!-- JS 动态渲染 -->
+          </div>
+        </div>
+
+        <!-- 月历假期修改主体 -->
+        <div class="border-[0.8px] border-s-grey-400 rounded-s-lg overflow-hidden bg-white shadow-s-card-sm">
+          <!-- 星期表头 -->
+          <div class="grid grid-cols-7 text-center text-xs font-semibold py-2.5 border-b-[0.8px] border-s-grey-400 bg-s-grey-100 text-s-grey-700">
+            <div class="text-s-chip-red-text font-bold">周日</div>
+            <div>周一</div>
+            <div>周二</div>
+            <div>周三</div>
+            <div>周四</div>
+            <div>周五</div>
+            <div class="text-s-chip-red-text font-bold">周六</div>
+          </div>
+
+          <!-- 月历日期网格 (7列 x 5~6行) -->
+          <div id="edit-calendar-grid" class="grid grid-cols-7 divide-x divide-y divide-s-grey-200 bg-s-grey-100/50">
+            <!-- JS 动态渲染各日期单元格 -->
+          </div>
+        </div>
+
+        <!-- 颜色指示器（日历下方，横向排布；电脑端居中，手机端换行为每行 2 个） -->
+        <div class="flex flex-wrap justify-center gap-x-8 gap-y-2 text-xs sm:max-xl:grid sm:max-xl:grid-cols-2 sm:max-xl:justify-items-center sm:max-xl:gap-x-16">
+          <div class="flex items-center text-s-blue-400"><span class="w-3 h-3 shrink-0 rounded-full bg-s-blue-300 mr-1.5"></span>默认排班</div>
+          <div class="flex items-center text-s-grey-600"><span class="w-3 h-3 shrink-0 rounded-full bg-s-icon-chevron mr-1.5"></span>双休日</div>
+          <div class="flex items-center text-s-chip-red-text"><span class="w-3 h-3 shrink-0 rounded-full bg-s-chip-red-border mr-1.5"></span>手动节假日</div>
+          <div class="flex items-center text-s-chip-yellow-text"><span class="w-3 h-3 shrink-0 rounded-full bg-s-chip-yellow-border mr-1.5"></span>调休补班</div>
+        </div>
+
+        <!-- 操作按钮已移至顶部导航条 -->
+      </div>
+    </section>
+
+    <!--  顺延自旧排班表 第 5 步: 成功生成 -->
+    <section id="panel-edit-step-5" class="step-panel hidden bg-white rounded-s-lg border-[0.8px] border-s-grey-400 shadow-s-card p-6 sm:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2 mb-6">
+        <div class="text-sm text-s-grey-600 hidden"> </div>
+        <div class="flex items-center justify-center flex-wrap gap-2">
+          <button type="button" id="btn-edit-download-html" class="inline-flex items-center gap-1.5 px-4 py-2 bg-s-primary border-[0.8px] border-s-blue-500 text-white rounded-s-md text-sm font-medium shadow-s-card-sm active:bg-s-blue-pressed active:border-s-blue-600">
+            <span class="material-symbols-outlined text-[18px]!" aria-hidden="true">download</span><span>导出HTML</span>
+          </button>
+          <button type="button" id="btn-edit-download-csv" class="inline-flex items-center gap-1.5 px-4 py-2 bg-s-grad-white border-[0.8px] border-s-grey-300 text-s-grey-800 rounded-s-md text-sm font-medium active:bg-s-grad-white-pressed">
+            <span class="material-symbols-outlined text-[18px]!" aria-hidden="true">table_view</span><span>导出CSV表格</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 排班结果容器 (三视图) -->
+      <div class="border-[0.8px] border-s-grey-400 rounded-s-lg overflow-hidden mb-2 bg-white">
+        <!-- 搜索与筛选工具条 -->
+        <div class="p-3 bg-s-grey-100 border-b-[0.8px] border-s-grey-400 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div class="relative flex-1 max-w-lg">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-s-icon pointer-events-none"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">search</span></span>
+            <input type="text" id="edit-table-search-input" placeholder="输入姓名、日期或星期搜索..." class="w-full pl-9 pr-8 py-2 text-xs sm:text-sm rounded-s-md border-[0.8px] border-s-grey-400 shadow-s-inset-field focus:border-s-chip-blue-border focus:outline-none bg-white text-s-grey-900">
+            <button type="button" id="edit-btn-clear-table-search" class="hidden absolute inset-y-0 right-0 pr-3 items-center text-s-icon active:text-s-grey-800"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">close</span></button>
+          </div>
+          <div class="flex items-center justify-between sm:justify-end space-x-3 text-xs">
+            <span id="edit-search-result-stats" class="font-medium text-s-grey-800">共 0 天</span>
+            <!-- Smartisan 分段 Tab（全站统一样式，见 style.css .smtabs） -->
+            <div class="smtabs" role="tablist" aria-label="排班结果视图切换">
+              <button type="button" id="btn-edit-subview-cards" role="tab" aria-selected="true" class="is-active">卡片</button>
+              <button type="button" id="btn-edit-subview-table" role="tab" aria-selected="false">表格</button>
+              <button type="button" id="btn-edit-subview-text" role="tab" aria-selected="false">文本</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 移动端友好的卡片流视图容器 -->
+        <div id="edit-final-cards-container" class="p-3 sm:p-4 space-y-2.5 bg-s-grey-100/50">
+          <!-- JS 动态渲染卡片 -->
+        </div>
+
+        <!-- 电脑端表格容器 -->
+        <div id="edit-final-table-scroll-container" class="max-h-96 overflow-y-auto overflow-x-auto hidden">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm [&_tbody_tr:nth-child(even)]:bg-s-grey-100 min-w-[500px]">
+            <thead class="bg-s-grey-100 text-s-grey-700 font-semibold sticky top-0 border-b-[0.8px] border-s-grey-400 z-10">
+              <tr>
+                <th class="py-3 px-4 w-20">序号</th>
+                <th class="py-3 px-4 w-36">日期</th>
+                <th class="py-3 px-4 w-24">星期</th>
+                <th class="py-3 px-4">值班人员</th>
+              </tr>
+            </thead>
+            <tbody id="edit-final-table-body" class="divide-y divide-s-grey-200 text-s-grey-900">
+              <!-- 动态填充 -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 搜索空状态 -->
+        <div id="edit-table-empty-search" class="hidden p-8 text-center text-s-grey-600 text-sm">
+          <div class="text-2xl mb-1"><span class="material-symbols-outlined text-[28px]!" aria-hidden="true">search</span></div>
+          未找到与当前关键词匹配的排班记录
+        </div>
+      </div>
+
+      <!-- Markdown 文本视图 -->
+      <div id="edit-view-text-container" class="relative hidden">
+        <textarea id="edit-markdown-output" rows="16" readonly class="w-full overflow-y-hidden rounded-s-md bg-s-grey-900 text-s-grey-100 p-4 pr-16 font-mono text-xs sm:text-sm leading-relaxed border-[0.8px] border-s-grey-900 shadow-s-inset-field focus:outline-none"></textarea>
+        <div class="absolute top-3 right-3">
+          <button type="button" id="btn-edit-copy-markdown" aria-label="复制 Markdown 文本" title="复制 Markdown 文本" class="h-9 inline-flex items-center gap-1 rounded-s-md bg-s-primary border-[0.8px] border-s-blue-500 px-3 text-xs sm:text-sm text-white font-semibold shadow-s-card-sm active:bg-s-blue-pressed active:border-s-blue-600"><span class="material-symbols-outlined text-[18px]!" aria-hidden="true">content_copy</span>复制</button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer id="site-footer" class="mt-auto py-3 px-4" aria-label="页脚" hidden>
+    <div id="site-footer-content" class="mx-auto max-w-5xl flex flex-wrap items-center justify-center gap-2 text-sm leading-normal text-s-grey-800 text-center [&_*]:m-0 [&_div]:flex [&_div]:flex-wrap [&_div]:items-center [&_div]:justify-center [&_div]:gap-2 [&_p]:flex [&_p]:flex-wrap [&_p]:items-center [&_p]:justify-center [&_p]:gap-2 [&_ul]:flex [&_ul]:flex-wrap [&_ul]:items-center [&_ul]:justify-center [&_ul]:gap-2 [&_ol]:flex [&_ol]:flex-wrap [&_ol]:items-center [&_ol]:justify-center [&_ol]:gap-2 [&_.site-footer-line]:basis-full [&_.site-footer-line]:flex [&_.site-footer-line]:flex-wrap [&_.site-footer-line]:items-center [&_.site-footer-line]:justify-center [&_.site-footer-line]:gap-2 [&_h1]:m-0 [&_h1]:text-sm [&_h1]:font-semibold [&_h1]:text-s-grey-800 [&_h2]:m-0 [&_h2]:text-sm [&_h2]:font-semibold [&_h2]:text-s-grey-800 [&_h3]:m-0 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-s-grey-800 [&_h4]:m-0 [&_h4]:text-sm [&_h4]:font-semibold [&_h4]:text-s-grey-800 [&_h5]:m-0 [&_h5]:text-sm [&_h5]:font-semibold [&_h5]:text-s-grey-800 [&_h6]:m-0 [&_h6]:text-sm [&_h6]:font-semibold [&_h6]:text-s-grey-800 [&_a]:text-s-blue-400 [&_a]:no-underline hover:[&_a]:text-s-blue-500 hover:[&_a]:underline [&_img]:h-5 [&_img]:w-auto [&_img]:max-w-full [&_img]:inline-block [&_img]:align-middle"></div>
+  </footer>
+
+  <!-- 手动修改轮换方案模态弹窗 (Markdown)（Smartisan Dialog：48px 灰头居中标题、54px 按钮组主操作最右） -->
+  <div id="modal-edit-assignments" class="smt-overlay hidden" role="dialog" aria-modal="true" aria-label="手动修改">
+    <div class="bg-white rounded-s-dialog shadow-s-card border-[0.8px] border-s-grey-400 w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+      <!-- Dialog Header（171:272）：48 高、#fafafa 底、底线 #ededed、18px 700 灰字居中 -->
+      <div class="shrink-0 h-12 px-6 flex items-center justify-center relative bg-s-grey-100 border-b-[0.8px] border-[#ededed]">
+        <h3 class="text-lg font-bold text-s-grey-800">手动修改</h3>
+        <button type="button" id="btn-close-edit-modal" class="absolute right-4 text-s-icon active:text-s-grey-800 p-1 rounded-s-md leading-none inline-flex" title="关闭" aria-label="关闭"><span class="material-symbols-outlined text-[20px]!" aria-hidden="true">close</span></button>
+      </div>
+
+      <!-- 格式提示与编辑区 -->
+      <div class="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
+        <div class="bg-s-chip-blue-border/15 border-[0.8px] border-s-chip-blue-border rounded-s-md p-3.5 text-xs text-s-blue-400 space-y-1 leading-relaxed">
+          <div class="font-bold flex items-center space-x-1">
+            <span>请注意：</span>
+          </div>
+          <p>仅支持调整人员顺序，天数或人数不匹配将报错。</p>
+        </div>
+
+        <!-- 校验错误提示区 -->
+        <div id="modal-edit-errors" class="hidden bg-s-chip-red-bg border-[0.8px] border-s-chip-red-border rounded-s-md p-4 text-xs text-s-chip-red-text space-y-1.5">
+          <div class="font-bold flex items-center space-x-1.5">
+            <span>保存校验未通过，请检查并修正以下问题：</span>
+          </div>
+          <ul id="modal-edit-errors-list" class="list-disc list-inside space-y-1 pl-1 font-mono">
+            <!-- 动态注入错误项 -->
+          </ul>
+        </div>
+
+        <!-- Markdown 编辑器 -->
+        <div>
+          <label for="modal-edit-textarea" class="block text-xs font-semibold text-s-grey-700 mb-1">
+            编辑文本 (Markdown)：
+          </label>
+          <textarea id="modal-edit-textarea" rows="14" class="w-full rounded-s-md bg-s-grey-900 text-s-grey-100 p-4 font-mono text-xs sm:text-sm leading-relaxed border-[0.8px] border-s-grey-900 shadow-s-inset-field focus:outline-none focus:border-s-chip-blue-border"></textarea>
+        </div>
+      </div>
+
+      <!-- Dialog Action Group（253:1210）：54 高按钮、#f7f7f7 底、1px #f2f2f2 竖线分隔、主操作 #5e80d0 最右 -->
+      <div class="shrink-0 flex border-t-[0.8px] border-s-grey-200">
+        <button type="button" id="btn-cancel-edit-modal" class="smt-dialog-action-btn">取消</button>
+        <button type="button" id="btn-reset-edit-modal" class="smt-dialog-action-btn">重置</button>
+        <button type="button" id="btn-save-edit-modal" class="smt-dialog-action-btn" data-primary>保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Smartisan 确认对话框（JS 复用：confirmDialog()，替代 window.confirm） -->
+  <div id="modal-confirm" class="smt-overlay hidden" role="alertdialog" aria-modal="true" aria-labelledby="modal-confirm-title">
+    <div class="bg-white rounded-s-dialog shadow-s-card w-[368px] max-w-full overflow-hidden">
+      <div id="modal-confirm-title" class="h-12 flex items-center justify-center bg-s-grey-100 border-b-[0.8px] border-[#ededed] text-lg font-bold text-s-grey-800"></div>
+      <div id="modal-confirm-body" class="p-5 text-base leading-6 text-[#656565] whitespace-pre-line"></div>
+      <div class="flex">
+        <button type="button" id="btn-confirm-cancel" class="smt-dialog-action-btn">取消</button>
+        <button type="button" id="btn-confirm-ok" class="smt-dialog-action-btn" data-primary>确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Smartisan Date Time Picker 弹窗（Kit 147:276：三列滚轮 年/月/日，JS 复用：openDatePickerDialog()） -->
+  <div id="modal-date-picker" class="smt-overlay hidden" role="dialog" aria-modal="true" aria-label="选择日期">
+    <div class="smt-picker bg-white">
+      <div class="smt-picker__header">
+        <button type="button" id="btn-picker-cancel" class="smt-picker__icon" aria-label="取消"><span class="material-symbols-outlined text-[20px]!" aria-hidden="true">close</span></button>
+        <span id="picker-title" class="smt-picker__title">2024-08-01</span>
+        <button type="button" id="btn-picker-confirm" class="smt-picker__icon" aria-label="确定"><span class="material-symbols-outlined text-[20px]!" aria-hidden="true">check</span></button>
+      </div>
+      <div class="smt-picker__body">
+        <div class="smt-picker__well">
+          <div class="smt-picker__band"></div>
+          <div id="picker-col-year" class="smt-picker__col"></div>
+          <div id="picker-col-month" class="smt-picker__col"></div>
+          <div id="picker-col-day" class="smt-picker__col"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 浮动 Toast 消息通知（Smartisan：蓝色渐变底 + 蓝字） -->
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-[70] pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-4">
+    <div class="bg-s-grad-toast border-[0.8px] border-s-toast-border text-s-toast-text text-xs sm:text-sm font-medium px-4 py-2.5 rounded-s-md shadow-s-bar flex items-center space-x-2">
+      <span id="toast-icon" class="inline-flex items-center leading-none">&nbsp;</span>
+      <span id="toast-message">操作成功</span>
+    </div>
+  </div>
+
+  <!-- 脚本引用 -->
+  <script src="js/scheduler.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

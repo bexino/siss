@@ -1,0 +1,736 @@
+@import "tailwindcss";
+
+/* 暗色变体：class 策略（html.dark），由 index.html head 内联脚本按 URL 参数/系统偏好设置 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 根元素配色方案（原生控件/滚动条跟随） */
+:root {
+  color-scheme: light;
+}
+
+/* ============================================================
+   Smartisan OS UI 设计语言 token（来自 smartisan-ui skill 的
+   Figma Kit / R2 真机实测值，经 tailwind.preset.js 移植为 v4 @theme）
+   暗色模式：Kit 无官方暗色，色值为推导值——保持"低对比渐变 +
+   极细描边 + 内凹"逻辑，所有 token 经 --sm-* 中间变量间接引用，
+   .dark 下整体换色，页面代码无需逐处加 dark: 类
+   ============================================================ */
+
+/* 亮/暗色板中间变量（:root 亮色 = Figma Kit 原值；.dark 暗色 = 推导值） */
+:root {
+  --sm-white: #ffffff;
+  --sm-grey-100: #fafafa;   /* 容器底 */
+  --sm-grey-200: #f2f2f2;   /* 分隔线 */
+  --sm-grey-300: #eeeeee;   /* 按钮描边 */
+  --sm-grey-400: #e2e2e2;   /* 列表/卡片描边 */
+  --sm-grey-500: #bababa;   /* 禁用 */
+  --sm-grey-600: #9d9d9d;   /* 副标题 */
+  --sm-grey-700: #7f7f7f;   /* 副标题/分组标题 */
+  --sm-grey-800: #636363;   /* 标题/按钮文字 */
+  --sm-grey-900: #333333;   /* 正文（不用纯黑） */
+
+  --sm-blue-100: #e7edfd;
+  --sm-blue-300: #5985eb;   /* 按下的列表行 */
+  --sm-blue-400: #5079d9;   /* 文字按钮/链接 */
+  --sm-blue-500: #3f68e2;   /* 主按钮描边 */
+  --sm-blue-600: #2f54d7;   /* 按下描边 */
+  --sm-blue-pressed: #4772e6;
+
+  --sm-page: #f5f5f5;
+  --sm-dialog-action: #f7f7f7;
+  --sm-dialog-action-pressed: #dfdfdf;
+  --sm-dialog-action-text: #5e80d0;
+  --sm-toast-top: #e7edfd;
+  --sm-toast-bottom: #dde6fb;
+  --sm-toast-border: #93b2f7;
+  --sm-toast-text: #5079d9;
+  --sm-icon: #929292;
+  --sm-icon-chevron: #b2b2b2;
+  --sm-icon-disabled: #c7c7c7;
+  --sm-placeholder: #d9d9d9;
+
+  --sm-chip-white-bg: #fafafa;
+  --sm-chip-white-border: #cecece;
+  --sm-chip-white-text: #646464;
+  --sm-chip-yellow-bg: #fff5d9;
+  --sm-chip-yellow-border: #ccb08c;
+  --sm-chip-yellow-text: #cd9143;
+  --sm-chip-blue-border: #93b2f7;
+  --sm-chip-blue-text: #6393ff;
+  --sm-chip-red-bg: #ffe7e5;
+  --sm-chip-red-border: #eb7f77;
+  --sm-chip-red-text: #cc3e39;
+  --sm-chip-grey-bg: #f0f0f0;
+  --sm-chip-grey-border: #dadada;
+
+  /* 渐变（同色系 2–5% 明度差的光照感） */
+  --sm-grad-primary-from: #5b87eb;
+  --sm-grad-primary-to: #5883eb;
+  --sm-grad-white-from: #ffffff;
+  --sm-grad-white-to: #fcfcfc;
+  --sm-grad-white-pressed-from: #ebebeb;
+  --sm-grad-white-pressed-to: #f2f2f2;
+  --sm-grad-toast-from: #e7edfd;
+  --sm-grad-toast-to: #dde6fb;
+}
+
+/* 暗色推导色板：灰阶反转但不用纯黑纯白，蓝提亮降饱和一档；
+   Chip 黄/红改深底浅字，保持语义可辨 */
+.dark {
+  color-scheme: dark;
+
+  --sm-white: #2a2a2c;          /* 原白面板 → 深灰面板 */
+  --sm-grey-100: #242426;       /* 容器底 */
+  --sm-grey-200: #2e2e30;       /* 分隔线 */
+  --sm-grey-300: #333335;       /* 按钮描边 */
+  --sm-grey-400: #3a3a3c;       /* 列表/卡片描边 */
+  --sm-grey-500: #5c5c5e;       /* 禁用 */
+  --sm-grey-600: #8e8e90;       /* 副标题 */
+  --sm-grey-700: #9e9ea0;       /* 副标题/分组标题 */
+  --sm-grey-800: #b8b8ba;       /* 标题/按钮文字 */
+  --sm-grey-900: #d4d4d6;       /* 正文（不用纯白） */
+
+  --sm-blue-100: #26304a;
+  --sm-blue-300: #4c6fd6;
+  --sm-blue-400: #7b9cf0;
+  --sm-blue-500: #4c6fd6;
+  --sm-blue-600: #6b8ce0;
+  --sm-blue-pressed: #5a7ce0;
+
+  --sm-page: #1c1c1e;
+  --sm-dialog-action: #262628;
+  --sm-dialog-action-pressed: #38383a;
+  --sm-dialog-action-text: #8fabee;
+  --sm-toast-top: #26304a;
+  --sm-toast-bottom: #232c44;
+  --sm-toast-border: #3f558c;
+  --sm-toast-text: #8fabee;
+  --sm-icon: #808082;
+  --sm-icon-chevron: #6a6a6c;
+  --sm-icon-disabled: #4e4e50;
+  --sm-placeholder: #555557;
+
+  --sm-chip-white-bg: #2a2a2c;
+  --sm-chip-white-border: #4a4a4c;
+  --sm-chip-white-text: #b0b0b2;
+  --sm-chip-yellow-bg: #3a3223;
+  --sm-chip-yellow-border: #9a7f4f;
+  --sm-chip-yellow-text: #dcb06e;
+  --sm-chip-blue-border: #5570b8;
+  --sm-chip-blue-text: #8fabee;
+  --sm-chip-red-bg: #3a2626;
+  --sm-chip-red-border: #b0655e;
+  --sm-chip-red-text: #e58a84;
+  --sm-chip-grey-bg: #2e2e30;
+  --sm-chip-grey-border: #4a4a4c;
+
+  --sm-grad-primary-from: #3f63cf;
+  --sm-grad-primary-to: #3c5fc9;
+  --sm-grad-white-from: #303032;
+  --sm-grad-white-to: #2c2c2e;
+  --sm-grad-white-pressed-from: #212123;
+  --sm-grad-white-pressed-to: #29292b;
+  --sm-grad-toast-from: #26304a;
+  --sm-grad-toast-to: #232c44;
+}
+
+@theme inline {
+  /* 等宽字体（font-mono）中文回退：优先系统非衬线黑体，绝不回退宋体 */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Cascadia Mono",
+    "Microsoft YaHei", "PingFang SC", "Noto Sans SC", monospace, sans-serif;
+
+  /* Smartisan 字体栈（真机：Smartisan Compact + Noto Sans CJK SC） */
+  --font-sans: "Smartisan Compact", "Inter", ui-sans-serif, system-ui, -apple-system, "BlinkMacSystemFont",
+    "Noto Sans CJK SC", "Source Han Sans SC", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+
+  /* 颜色 token 全部经 --sm-* 中间变量间接引用，.dark 下自动换色（@theme inline
+     使生成的工具类引用变量而非内联值） */
+  --color-s-white: var(--sm-white);
+
+  --color-s-grey-100: var(--sm-grey-100);
+  --color-s-grey-200: var(--sm-grey-200);
+  --color-s-grey-300: var(--sm-grey-300);
+  --color-s-grey-400: var(--sm-grey-400);
+  --color-s-grey-500: var(--sm-grey-500);
+  --color-s-grey-600: var(--sm-grey-600);
+  --color-s-grey-700: var(--sm-grey-700);
+  --color-s-grey-800: var(--sm-grey-800);
+  --color-s-grey-900: var(--sm-grey-900);
+
+  --color-s-blue-100: var(--sm-blue-100);
+  --color-s-blue-300: var(--sm-blue-300);
+  --color-s-blue-400: var(--sm-blue-400);
+  --color-s-blue-500: var(--sm-blue-500);
+  --color-s-blue-600: var(--sm-blue-600);
+  --color-s-blue-pressed: var(--sm-blue-pressed);
+
+  --color-s-page: var(--sm-page);
+  --color-s-dialog-action: var(--sm-dialog-action);
+  --color-s-dialog-action-pressed: var(--sm-dialog-action-pressed);
+  --color-s-dialog-action-text: var(--sm-dialog-action-text);
+  --color-s-toast-top: var(--sm-toast-top);
+  --color-s-toast-bottom: var(--sm-toast-bottom);
+  --color-s-toast-border: var(--sm-toast-border);
+  --color-s-toast-text: var(--sm-toast-text);
+  --color-s-icon: var(--sm-icon);
+  --color-s-icon-chevron: var(--sm-icon-chevron);
+  --color-s-icon-disabled: var(--sm-icon-disabled);
+  --color-s-placeholder: var(--sm-placeholder);
+
+  --color-s-chip-white-bg: var(--sm-chip-white-bg);
+  --color-s-chip-white-border: var(--sm-chip-white-border);
+  --color-s-chip-white-text: var(--sm-chip-white-text);
+  --color-s-chip-yellow-bg: var(--sm-chip-yellow-bg);
+  --color-s-chip-yellow-border: var(--sm-chip-yellow-border);
+  --color-s-chip-yellow-text: var(--sm-chip-yellow-text);
+  --color-s-chip-blue-border: var(--sm-chip-blue-border);
+  --color-s-chip-blue-text: var(--sm-chip-blue-text);
+  --color-s-chip-red-bg: var(--sm-chip-red-bg);
+  --color-s-chip-red-border: var(--sm-chip-red-border);
+  --color-s-chip-red-text: var(--sm-chip-red-text);
+  --color-s-chip-grey-bg: var(--sm-chip-grey-bg);
+  --color-s-chip-grey-border: var(--sm-chip-grey-border);
+
+  /* 圆角（Kit 规格） */
+  --radius-s-segment: 3px;
+  --radius-s-sm: 4px;
+  --radius-s-md: 6px;
+  --radius-s-sheet-btn: 8px;
+  --radius-s-lg: 10px;
+  --radius-s-dialog: 12px;
+  --radius-s-sheet: 20px;
+
+  /* 阴影（暗色下加深内凹，@theme inline 供 dark 覆盖 --sm-shadow-* 变量） */
+  --shadow-s-card: 0 10px 16px var(--sm-shadow-card);
+  --shadow-s-card-sm: 0 2px 6px var(--sm-shadow-card-sm);
+  --shadow-s-bar: 0 4px 4px var(--sm-shadow-bar);
+  --shadow-s-inset-track: inset 0 4px 4px var(--sm-shadow-inset-strong);
+  --shadow-s-inset-field: inset 0 4px 4px var(--sm-shadow-inset-weak);
+  --shadow-s-inset-tab: inset 0 4px 10px var(--sm-shadow-inset-mid);
+  --shadow-s-inset-well: inset 0 4px 12px var(--sm-shadow-inset-well);
+}
+
+/* 阴影色变量（亮/暗分开定义；用 rgba 保持 Kit 透明度规范） */
+:root {
+  --sm-shadow-card: rgba(0, 0, 0, 0.04);
+  --sm-shadow-card-sm: rgba(0, 0, 0, 0.06);
+  --sm-shadow-bar: rgba(0, 0, 0, 0.08);
+  --sm-shadow-inset-strong: rgba(0, 0, 0, 0.06);
+  --sm-shadow-inset-mid: rgba(0, 0, 0, 0.06);
+  --sm-shadow-inset-weak: rgba(0, 0, 0, 0.04);
+  --sm-shadow-inset-well: rgba(0, 0, 0, 0.18);
+}
+
+.dark {
+  --sm-shadow-card: rgba(0, 0, 0, 0.3);
+  --sm-shadow-card-sm: rgba(0, 0, 0, 0.25);
+  --sm-shadow-bar: rgba(0, 0, 0, 0.35);
+  --sm-shadow-inset-strong: rgba(0, 0, 0, 0.35);
+  --sm-shadow-inset-mid: rgba(0, 0, 0, 0.3);
+  --sm-shadow-inset-weak: rgba(0, 0, 0, 0.22);
+  --sm-shadow-inset-well: rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- Smartisan 渐变（经 --sm-grad-* 变量引用，暗色自动换色） ---------- */
+@utility bg-s-primary {
+  background-image: linear-gradient(180deg, var(--sm-grad-primary-from), var(--sm-grad-primary-to));
+}
+@utility bg-s-grad-white {
+  background-image: linear-gradient(180deg, var(--sm-grad-white-from), var(--sm-grad-white-to));
+}
+@utility bg-s-grad-white-pressed {
+  background-image: linear-gradient(180deg, var(--sm-grad-white-pressed-from), var(--sm-grad-white-pressed-to));
+}
+@utility bg-s-grad-toast {
+  background-image: linear-gradient(180deg, var(--sm-grad-toast-from), var(--sm-grad-toast-to));
+}
+
+/* Geist 可变字体（本地缓存，字重 100-900 连续可调，仅覆盖英文字符） */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/geist-variable-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* 全站字体：英文用 Geist，中文回退到系统字体（Smartisan Compact 装机时优先） */
+body {
+  font-family: 'Geist', "Smartisan Compact", "Inter", ui-sans-serif, system-ui, 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
+}
+
+/* ============================================================
+   保留壳类：JS 动态引用类名，内部用 @apply 引用标准工具类
+   ============================================================ */
+
+/* Smartisan 分段 Tab（全站统一的视图切换标签，参照 Kit .s-tabs：
+   细描边外框 + 未选中白底灰字 + 选中段内凹灰底白字 #b2b2b2） */
+.smtabs {
+  @apply inline-flex items-stretch border-[0.8px] border-s-grey-400 rounded-s-md overflow-hidden text-xs font-bold;
+}
+
+.smtabs > button {
+  @apply px-3 py-1 bg-white text-s-grey-800 font-bold cursor-pointer whitespace-nowrap;
+}
+
+/* 暗色：壳类内联的白底无法被 .dark .bg-white 接管，在此覆盖为暗面板色 */
+.dark .smtabs > button {
+  background-color: var(--sm-white);
+  color: var(--sm-grey-800);
+}
+
+.smtabs > button + button {
+  @apply border-l-[0.4px] border-s-grey-200;
+}
+
+/* 选中段：内凹灰底白字（阴影含 inset 描边，无法用单一工具类表达，
+   对应 Kit --s-inset-tab + inset ring；暗色下改深灰底、描边提亮一档） */
+.smtabs > button.is-active {
+  color: #ffffff;
+  background: #b2b2b2;
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.06), inset 0 0 0 0.4px #a7a7a7;
+  border-color: transparent;
+}
+
+.dark .smtabs > button.is-active {
+  background: #5e5e60; /* 暗色推导：原 #b2b2b2 的暗色等值（亮一档以保对比） */
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 0 0 0.4px #747476;
+}
+
+/* 步骤标题（顶部导航条内，正文样式：无背景无边框，数字蓝、文字灰；
+   JS 用 closest('.step-title-button') 引用） */
+.step-title-button {
+  @apply inline-flex items-center flex-nowrap gap-2 min-w-0 text-left cursor-pointer focus-visible:outline-none focus-visible:opacity-80;
+}
+
+.step-title-number {
+  @apply shrink-0 text-s-blue-400 text-base font-semibold leading-tight;
+}
+
+.step-title-text {
+  @apply truncate text-base font-normal text-s-grey-600 whitespace-nowrap;
+}
+
+/* 步骤导览菜单（JS 动态生成 item 并用 closest 引用） */
+.step-menu {
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45;
+}
+
+/* hidden 属性 / hidden 类需覆盖上面的 @apply flex（未分层样式优先于 Tailwind
+   工具层，.hidden 单独声明会输给 .step-menu 的 flex，故必须在此显式覆盖） */
+.step-menu[hidden],
+.step-menu.hidden {
+  display: none;
+}
+
+.step-menu-list {
+  @apply min-w-80 max-w-full max-h-[min(70vh,480px)] overflow-y-auto p-1.5 border-[0.8px] border-s-grey-400 rounded-s-dialog bg-white shadow-s-card;
+}
+
+/* 暗色：同 .smtabs，壳类内联白底需单独覆盖 */
+.dark .step-menu-list {
+  background-color: var(--sm-white);
+}
+
+.step-menu-item {
+  @apply w-full flex flex-nowrap items-center gap-2.5 p-2.5 rounded-s-md text-s-grey-800 cursor-pointer whitespace-nowrap text-[0.8125rem] font-medium text-left active:bg-s-grey-200 focus-visible:bg-s-grey-200 focus-visible:outline-none;
+}
+
+.step-menu-item.is-current {
+  @apply bg-s-blue-300 text-white font-bold;
+}
+
+.step-menu-number {
+  @apply shrink-0 min-w-9 py-1 px-1 border-[0.8px] border-s-grey-400 rounded-full bg-s-grey-100 text-s-grey-600 text-[0.6875rem] font-bold text-center;
+}
+
+.step-menu-item.is-current .step-menu-number {
+  @apply border-transparent bg-s-blue-500 text-white;
+}
+
+/* 当前项徽标内的对勾图标：行高对齐防上浮（font-size: inherit 覆盖 Google 样式表的固定 24px，
+   再用工具类指定 14px） */
+.step-menu-number .material-symbols-outlined {
+  display: block;
+  line-height: inherit;
+  vertical-align: middle;
+  margin: -1px auto 0;
+}
+
+/* 日历单元格（JS 模板拼接，保留壳类） */
+.calendar-cell {
+  @apply min-h-20 active:bg-s-grey-200;
+}
+
+@media (max-width: 640px) {
+  .calendar-cell {
+    min-height: 52px;
+    padding: 4px !important;
+  }
+}
+
+/* 搜索高亮（highlight() 生成 <mark class="search-highlight">）
+   Smartisan Chip 黄配色 */
+mark.search-highlight {
+  @apply bg-s-chip-yellow-bg text-s-chip-yellow-text px-1 py-px rounded-s-sm font-bold;
+}
+
+/* 移动端排班卡片（JS 用 closest 引用） */
+.schedule-card {
+  @apply active:bg-s-grey-100;
+}
+
+/* 人员药丸标签（JS 用 closest 引用） */
+.mobile-person-chip {
+  @apply touch-manipulation select-none;
+}
+
+/* .active-match 高亮态（Smartisan Chip 黄配色） */
+.mobile-person-chip.active-match {
+  @apply bg-s-chip-yellow-bg border-s-chip-yellow-border text-s-chip-yellow-text font-bold;
+}
+
+/* ============================================================
+   无法用工具类表达、保留原样 CSS 的例外（按 AGENTS.md 约束注释
+   标注对应 Smartisan token 色值）
+   ============================================================ */
+
+/* 细滚动条（伪元素无法用工具类表达）
+   色值对应：s-grey-100 / s-grey-400 / s-grey-600 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fafafa; /* s-grey-100 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e2e2e2; /* s-grey-400 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9d9d9d; /* s-grey-600 */
+}
+
+/* 暗色滚动条：对应暗色 s-grey-100 / s-grey-400 / s-grey-600 */
+.dark ::-webkit-scrollbar-track {
+  background: #242426;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #3a3a3c;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #8e8e90;
+}
+
+/* 头部 App Bar 下方真机实测渐隐阴影（约 8dp，从 rgba(0,0,0,.045) 渐隐） */
+.appbar-shadow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 8px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.045), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+
+/* 暗色下 App Bar 阴影加深一档（推导值） */
+.dark .appbar-shadow::after {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
+}
+
+/* ============================================================
+   静态 Tailwind 工具类的暗色覆盖（页面/JS 模板里的 bg-white、
+   text-white 等非 s- 前缀类无法经 token 变量换色，在此统一接管）
+   ============================================================ */
+
+/* bg-white：全部为白色面板/单元格底色 → 暗色深灰面板 */
+.dark .bg-white {
+  background-color: var(--sm-white);
+}
+
+/* bg-white/25（日历角标徽章底，叠在彩色圆角块上）保持半透明白但在暗色下降低透明度 */
+.dark .bg-white\/25 {
+  background-color: rgb(255 255 255 / 0.15);
+}
+
+/* text-white：仅用于彩色底（主按钮、按下的列表行、chip 徽章）上的文字，
+   暗色下彩底变深，文字仍用白色可读，无需覆盖 */
+
+/* index.html 中两处硬编码 HEX（Kit 原 token 无暗色对应，在此补暗色覆盖） */
+.dark .text-\[\#656565\] {
+  color: #b8b8ba; /* 暗 s-grey-800 */
+}
+.dark .border-\[\#ededed\] {
+  border-color: #3a3a3c; /* 暗 s-grey-400 */
+}
+
+/* bg-s-chip-red-bg0（放假标签底色，如红色实底/25% 透明变体——暗色沿用深红底） */
+.bg-s-chip-red-bg0 {
+  background-color: var(--sm-chip-red-text);
+}
+
+/* Markdown 输出框（bg-s-grey-900 + text-s-grey-100 的"代码块"用法）：
+   亮色本就是深底浅字，暗色下 token 反转会让它变成浅底，在此恢复深底浅字
+   （底色比面板更深一档，对应暗色推导） */
+.dark .bg-s-grey-900.text-s-grey-100,
+.dark textarea.bg-s-grey-900 {
+  background-color: #161618;
+  color: #c8c8ca;
+  border-color: #161618;
+}
+
+/* ============================================================
+   Smartisan Dialog（Kit 248:871 / 253:1210 / 253:1049）与
+   Date Time Picker（Kit 147:276）壳类：弹窗由 JS 控制显隐
+   ============================================================ */
+
+/* 弹窗遮罩（Kit --s-overlay rgba(0,0,0,.6)，出现时 0.15s 淡入） */
+.smt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* .smt-overlay 的 display:flex 会压过工具层 .hidden（未分层样式优先），需显式覆盖 */
+.smt-overlay.hidden,
+.smt-overlay[hidden] {
+  display: none;
+}
+
+.smt-overlay:not(.hidden):not([hidden]) {
+  animation: smt-fade-in 0.15s ease;
+}
+
+@keyframes smt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Dialog Action Button：高 54、底 #f7f7f7（s-dialog-action）、顶线 #e8e8e8、按下 #dfdfdf */
+.smt-dialog-action-btn {
+  @apply flex-1 h-[54px] cursor-pointer text-center text-sm font-bold text-s-grey-800 bg-s-dialog-action active:bg-s-dialog-action-pressed;
+  border: 0;
+  border-top: 0.8px solid #e8e8e8; /* Kit --s-dialog-action-border，介于 s-grey-200 与 s-grey-300 之间 */
+}
+
+/* 按钮之间 1px #f2f2f2（s-grey-200）竖线分隔；暗色用暗色分隔线 */
+.smt-dialog-action-btn + .smt-dialog-action-btn {
+  box-shadow: inset 1px 0 0 #f2f2f2;
+}
+
+.dark .smt-dialog-action-btn + .smt-dialog-action-btn {
+  box-shadow: inset 1px 0 0 #2e2e30; /* 暗色 s-grey-200 */
+}
+
+.smt-dialog-action-btn[data-primary] {
+  @apply text-s-dialog-action-text;
+}
+
+.smt-dialog-action-btn[data-primary]:active {
+  border-top-color: #d5d5d5; /* Kit --s-dialog-action-border-pressed */
+}
+
+/* ---------- Date Time Picker（Kit 147:276，432×274 滚轮选择器） ---------- */
+.smt-picker {
+  width: 432px;
+  max-width: 100%;
+  height: 274px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 20px 20px 12px 12px; /* Kit 底部弹窗顶 20；居中浮窗底收 12 */
+  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Bottom Sheet Header（204:1173）：左 ×、右 ✓、标题绝对居中 */
+.smt-picker__header {
+  flex: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 13px;
+  background: linear-gradient(180deg, #ffffff, #fafafa); /* Kit --s-grad-sheet-header */
+  border-bottom: 1px solid #e2e2e2; /* s-border-list */
+}
+
+.smt-picker__title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: 700;
+  color: #656565; /* Kit --s-text-body */
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.smt-picker__icon {
+  @apply inline-flex cursor-pointer text-s-icon p-1.5 rounded-s-md active:text-s-grey-800;
+}
+
+/* Body：#ededed → #f1f1f1(14%) → #ededed（Kit --s-grad-picker-body） */
+.smt-picker__body {
+  flex: 1;
+  min-height: 0; /* flex 纵向：允许被 274px 总高约束，防止内容撑开 */
+  display: flex;
+  padding: 0 12px 18px;
+  background: linear-gradient(180deg, #ededed 0%, #f1f1f1 14%, #ededed 100%);
+}
+
+/* 滚轮井：1px #c6c6c8 描边 + 内凹（Kit --s-grad-picker-well / --s-inset-well） */
+.smt-picker__well {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid #c6c6c8;
+  border-radius: 6px; /* s-r-md */
+  background: linear-gradient(180deg, rgba(254, 254, 254, 0.405), #e2e2e3);
+}
+
+.smt-picker__well::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.18); /* s-inset-well */
+}
+
+/* 选中带：横贯井、高 44、垂直居中（(井高 208 − 44) / 2 = 82） */
+.smt-picker__band {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: 82px;
+  height: 44px;
+  background: linear-gradient(180deg, #ffffff 0%, rgba(245, 245, 245, 0.535) 53.5%, #f8f8f8 100%); /* Kit --s-grad-picker-band */
+  border: 1px solid #d9d9d9;
+  pointer-events: none;
+}
+
+/* 滚轮列：scroll-snap 吸附；行高 38 + 间距 16 = 节距 54（JS 的 SMT_PICKER.itemPitch 与此对应） */
+.smt-picker__col {
+  flex: 1;
+  position: relative; /* 让 span 的 offsetTop 相对列自身，供 JS 计算滚动位置 */
+  height: 100%;       /* flex 拉伸下 overflow-y:auto 需要显式定高才能产生滚动 */
+  min-height: 0;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  font-size: 16px;
+  text-align: center;
+  color: #b3b3b5; /* Kit 未选中项 */
+  border-right: 1px solid rgba(206, 206, 206, 0.4); /* Kit 列间竖线 */
+}
+
+.smt-picker__col:last-child {
+  border-right: 0;
+}
+
+.smt-picker__col::-webkit-scrollbar {
+  display: none;
+}
+
+/* 上下 spacer：(井高 208 − 行高 38) / 2 = 85，使首尾项也能吸附到选中带 */
+.smt-picker__col::before,
+.smt-picker__col::after {
+  content: "";
+  display: block;
+  height: 85px;
+}
+
+.smt-picker__col > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  margin-bottom: 16px;
+  scroll-snap-align: center;
+  cursor: pointer;
+}
+
+.smt-picker__col > span:last-child {
+  margin-bottom: 0;
+}
+
+.smt-picker__col > span[aria-selected="true"] {
+  color: #55585c; /* Kit 选中项 */
+}
+
+/* ---------- Picker / Dialog 例外 CSS 的暗色覆盖（推导值，注释标注对应亮色） ---------- */
+
+.dark .smt-picker {
+  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.5);
+}
+
+.dark .smt-picker__header {
+  background: linear-gradient(180deg, #2e2e30, #242426); /* 暗 s-white → s-grey-100 */
+  border-bottom-color: #3a3a3c; /* 暗 s-grey-400 */
+}
+
+.dark .smt-picker__title {
+  color: #b8b8ba; /* 暗 s-grey-800 */
+}
+
+/* 暗色 Picker Body：暗 #ededed → #f1f1f1(14%) → #ededed */
+.dark .smt-picker__body {
+  background: linear-gradient(180deg, #2b2b2d 0%, #303032 14%, #2b2b2d 100%);
+}
+
+/* 暗色滚轮井：描边与内凹底色整体压暗 */
+.dark .smt-picker__well {
+  border-color: #4a4a4c; /* 原 #c6c6c8 */
+  background: linear-gradient(180deg, rgba(48, 48, 50, 0.405), #232325);
+}
+
+/* 暗色选中带：原 --s-grad-picker-band 压暗 */
+.dark .smt-picker__band {
+  background: linear-gradient(180deg, #343436 0%, rgba(40, 40, 42, 0.535) 53.5%, #38383a 100%);
+  border-color: #4e4e50; /* 原 #d9d9d9 */
+}
+
+.dark .smt-picker__col {
+  color: #6a6a6c; /* 原 #b3b3b5 */
+  border-right-color: rgba(90, 90, 92, 0.4); /* 原 rgba(206,206,206,.4) */
+}
+
+.dark .smt-picker__col > span[aria-selected="true"] {
+  color: #c8c8ca; /* 原 #55585c 的暗色反转 */
+}
+
+/* ============================================================
+   Material Symbols 图标（LoliNet 镜像加载，见 index.html <head>）
+   ============================================================ */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}

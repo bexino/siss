@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "siss",
+  "compatibility_date": "2026-10-12",
+  // Workers 静态资产模式：`npx wrangler deploy` 直接把 dist/ 作为 Worker 站点部署
+  // （Pages Git 构建环境里必须保留 Deploy command，故改用已存在的 Worker 项目部署）
+  "assets": {
+    "directory": "dist"
+  }
+}
