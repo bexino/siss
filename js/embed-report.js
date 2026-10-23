@@ -20,4 +20,11 @@ for (const method of ['replaceState', 'pushState']) {
     return ret
   }
 }
+
+// 父页 listener 注册可能晚于本脚本的初始上报（时序不定），
+// 父页准备好后会发 {source:'bexino-hub-ping'}，收到即补报一次当前地址
+window.addEventListener('message', (e) => {
+  if (e.origin !== HUB_ORIGIN || e.data?.source !== 'bexino-hub-ping') return
+  reportToHub()
+})
 reportToHub()
