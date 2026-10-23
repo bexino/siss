@@ -388,6 +388,8 @@ function showToast(message, icon = '<span class="material-symbols-outlined text-
   if (toastTimeout) clearTimeout(toastTimeout);
   elements.toastMessage.textContent = message;
   elements.toastIcon.innerHTML = icon;
+  // 图标为空时隐藏图标占位，避免文字偏移
+  elements.toastIcon.style.display = icon ? '' : 'none';
   elements.toast.classList.remove('opacity-0', '-translate-y-4');
   elements.toast.classList.add('opacity-100', 'translate-y-0');
 
@@ -1727,28 +1729,43 @@ function fallbackCopyText(text) {
   showToast('排班表 Markdown 已成功复制到剪贴板！');
 }
 
+// 导出前延迟：显示"正在思考..."气泡并等待 1 秒（配合各导出函数的防重锁避免时间戳冲突）
+async function thinkBeforeExport() {
+  showToast('正在思考...', '');
+  await new Promise(resolve => setTimeout(resolve, 1000));
+}
+
 // 导出并下载排班表 CSV 文件 (带 BOM 防止 Excel 乱码)
+// 与 HTML 导出一致：文件名为 sched_<Unix 时间戳>.csv，确认后延迟 1 秒再导出
+let isExportingCsv = false;
+
 async function downloadCsvFile() {
+  if (isExportingCsv) return;
   const { items } = getActiveScheduleData();
   if (!items || items.length === 0) return;
 
   const message = '导出 CSV 前请注意：\n• 打开后若日期显示为一行井号 "#"，需自行加宽单元格列宽；\n• CSV 不支持格式的保存，故您需要自行另存为 xlsx 等格式。\n\n是否继续导出？';
   if (!(await confirmDialog(message))) return;
 
-  const csvContent = formatToCsv(items);
-  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  const startDate = items[0]?.dateStr || '';
-  const endDate = items[items.length - 1]?.dateStr || '';
-  const fileName = `Schedule_${startDate}_to_${endDate}.csv`;
-  link.setAttribute('download', fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-  showToast(`排班表 CSV 文件已导出并开始下载！`);
+  isExportingCsv = true;
+  try {
+    await thinkBeforeExport();
+
+    const csvContent = formatToCsv(items);
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const fileName = `sched_${Date.now()}.csv`;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast(`导出成功`);
+  } finally {
+    isExportingCsv = false;
+  }
 }
 
 /**
@@ -2645,7 +2662,7 @@ function generateStandaloneHtml(items, stats) {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      const fileName = 'Schedule_' + (statsData.startDate || '') + '_to_' + (statsData.endDate || '') + '.csv';
+      const fileName = 'sched_' + Date.now() + '.csv';
       link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
@@ -2678,8 +2695,12 @@ function generateStandaloneHtml(items, stats) {
 </html>`;
 }
 
-// 导出并下载独立可视化 HTML 文件
-function downloadHtmlFile() {
+// 导出并下载独立可视化 HTML 文件：文件名为 sched_<Unix 时间戳>.html，
+// 导出前延迟 1 秒并提示"正在思考..."，期间加锁防止重复触发导致时间戳冲突
+let isExportingHtml = false;
+
+async function downloadHtmlFile() {
+  if (isExportingHtml) return;
   const { items } = getActiveScheduleData();
   if (!items || items.length === 0) return;
 
@@ -2715,18 +2736,25 @@ function downloadHtmlFile() {
     };
   }
 
-  const htmlContent = generateStandaloneHtml(items, stats);
-  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  const fileName = `Schedule_${startDate}_to_${endDate}.html`;
-  link.setAttribute('download', fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-  showToast(`已导出独立可视化排班表 HTML 文件`);
+  isExportingHtml = true;
+  try {
+    await thinkBeforeExport();
+
+    const htmlContent = generateStandaloneHtml(items, stats);
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const fileName = `sched_${Date.now()}.html`;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast(`导出成功`);
+  } finally {
+    isExportingHtml = false;
+  }
 }
 
 // ----------------------------------------------------
